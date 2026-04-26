@@ -7,8 +7,6 @@ Website for **Aamrit**, a premium Alphonso mango brand by Yeskay Mango Farms Pvt
 | Folder | What's in it |
 | --- | --- |
 | `web/` | The production **Next.js 15 (App Router)** site — TypeScript + Tailwind + Framer Motion + GSAP + Lenis |
-| `site/` | Original static HTML + Tailwind prototype (kept for reference) |
-| `claude-seo/` | SEO research and tooling |
 | `Yeskay Mango Farm Profile.pdf` | Source brand profile / brochure |
 
 ## Run the Next.js site locally
