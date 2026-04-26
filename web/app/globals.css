@@ -1,0 +1,337 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #f4a300;
+  --saffron: #e07a00;
+  --cream: #fff4e5;
+  --leaf: #2e7d32;
+  --charcoal: #2b2b2b;
+  --ease-out: cubic-bezier(0.16, 0.84, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.32, 0.42, 1);
+  --ease-soft: cubic-bezier(0.32, 0.72, 0.32, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Use overflow-x: clip on html — doesn't create a scroll container, so Lenis still works */
+  overflow-x: clip;
+}
+
+body {
+  color: var(--charcoal);
+  background: #fffbf5;
+  -webkit-font-smoothing: antialiased;
+  /* No overflow-x here — Lenis needs body to not be a scroll container */
+}
+
+/* Lenis recommended setup */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+h1,
+h2,
+h3,
+.serif {
+  font-family: var(--font-playfair), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  line-height: 1.02;
+  font-weight: 600;
+}
+h2 {
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+}
+h3 {
+  line-height: 1.15;
+  font-weight: 600;
+}
+p {
+  line-height: 1.6;
+}
+
+::selection {
+  background: rgba(244, 163, 0, 0.85);
+  color: white;
+}
+
+/* ─── Gradients ─── */
+.grad-warm {
+  background: linear-gradient(135deg, #fffbf5 0%, #fff4e5 35%, #fcebc2 70%, #f9d584 100%);
+}
+.grad-gold {
+  background: linear-gradient(135deg, #f6bf45 0%, #f4a300 45%, #e07a00 100%);
+}
+.grad-gold-rich {
+  background: linear-gradient(135deg, #ffd773 0%, #f4a300 35%, #e07a00 70%, #b07300 100%);
+}
+.grad-text {
+  background: linear-gradient(
+    90deg,
+    #e07a00 0%,
+    #f4a300 30%,
+    #ffd773 50%,
+    #f4a300 70%,
+    #e07a00 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: shine 5s linear infinite;
+}
+.grad-text-static {
+  background: linear-gradient(90deg, #e07a00, #f4a300 50%, #e07a00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.grad-charcoal {
+  background: linear-gradient(180deg, #2b2b2b 0%, #1f1f1f 50%, #141414 100%);
+}
+.grad-leaf {
+  background: linear-gradient(135deg, #3a9c40 0%, #2e7d32 50%, #1f4f22 100%);
+}
+
+/* ─── Cards ─── */
+.card-edge {
+  position: relative;
+  border-radius: 1.5rem;
+  background: white;
+  box-shadow: 0 8px 30px rgba(43, 43, 43, 0.08);
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease;
+}
+.card-edge::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    rgba(244, 163, 0, 0.45),
+    rgba(46, 125, 50, 0.15) 40%,
+    rgba(43, 43, 43, 0.06) 100%
+  );
+}
+.card-edge:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(31, 16, 0, 0.14);
+}
+
+.card-warm {
+  position: relative;
+  background: #fffbf5;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(244, 163, 0, 0.18);
+  box-shadow: 0 4px 12px rgba(31, 16, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-warm:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(31, 16, 0, 0.1);
+}
+
+/* ─── Buttons ─── */
+.btn-gold {
+  position: relative;
+  background: linear-gradient(180deg, #f6bf45 0%, #f4a300 50%, #d88e00 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 -2px 0 rgba(122, 80, 0, 0.25) inset,
+    0 14px 32px rgba(244, 163, 0, 0.32);
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.3s var(--ease-soft),
+    filter 0.2s ease;
+}
+.btn-gold:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -2px 0 rgba(122, 80, 0, 0.3) inset,
+    0 24px 56px rgba(224, 122, 0, 0.46);
+  filter: saturate(1.08) brightness(1.02);
+}
+.btn-gold:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(8px);
+  transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease-spring);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ─── Decorative ─── */
+.gold-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--saffron);
+}
+.gold-rule::before,
+.gold-rule::after {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #f4a300 50%, transparent);
+}
+.gold-rule.left::before {
+  display: none;
+}
+
+.badge {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+.stat-tile {
+  background: linear-gradient(180deg, #fffbf5 0%, #fff4e5 100%);
+  border: 1px solid rgba(244, 163, 0, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 14px rgba(31, 16, 0, 0.05);
+}
+
+.ribbon {
+  background: linear-gradient(180deg, #f6bf45 0%, #f4a300 50%, #d88e00 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 -2px 0 rgba(122, 80, 0, 0.25) inset,
+    0 8px 18px rgba(244, 163, 0, 0.32);
+}
+
+/* ─── Image hover zoom ─── */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom > img,
+.img-zoom .zoom-target {
+  transition: transform 0.9s var(--ease-out), filter 0.6s ease;
+  will-change: transform;
+}
+.img-zoom:hover > img,
+.img-zoom:hover .zoom-target {
+  transform: scale(1.06);
+}
+
+/* ─── Tilt card ─── */
+.tilt {
+  transform: perspective(1000px) rotateX(0) rotateY(0);
+  transition: transform 0.5s var(--ease-soft), box-shadow 0.5s var(--ease-soft);
+  transform-style: preserve-3d;
+}
+.tilt:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-3deg) translateY(-6px);
+}
+
+/* ─── CTA halo ─── */
+.cta-halo {
+  position: relative;
+  isolation: isolate;
+}
+.cta-halo::after {
+  content: "";
+  position: absolute;
+  inset: -40px -60px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 60% at 30% 50%,
+    rgba(244, 163, 0, 0.35),
+    transparent 70%
+  );
+  filter: blur(8px);
+  opacity: 0.8;
+}
+
+/* ─── Map tabs ─── */
+.map-tab {
+  color: #6b7280;
+}
+.map-tab.is-active {
+  background: linear-gradient(180deg, #f6bf45 0%, #f4a300 50%, #d88e00 100%);
+  color: white;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 -2px 0 rgba(122, 80, 0, 0.25) inset,
+    0 8px 18px rgba(244, 163, 0, 0.32);
+}
+.map-tab:not(.is-active):hover {
+  color: #e07a00;
+}
+
+/* ─── Plot row hover ─── */
+.plot-row {
+  transition: background 0.3s ease;
+}
+.plot-row:hover {
+  background: linear-gradient(90deg, rgba(244, 163, 0, 0.08), transparent 80%);
+}
+.plot-row:hover .plot-dot {
+  transform: scale(1.4);
+  box-shadow: 0 0 0 4px rgba(244, 163, 0, 0.25);
+}
+.plot-dot {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ─── Focus ring ─── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #f4a300;
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+/* ─── Mobile padding for sticky CTA ─── */
+@media (max-width: 1024px) {
+  main {
+    padding-bottom: 84px;
+  }
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
