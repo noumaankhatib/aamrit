@@ -54,7 +54,7 @@ export default function Hero() {
     <section
       id="hero"
       ref={sectionRef}
-      className="relative min-h-[100svh] overflow-hidden"
+      className="relative min-h-[100svh] overflow-hidden pt-8"
     >
       {/* Background image — zooms from 1.06 → 1 on mount, parallaxes on scroll */}
       <motion.div

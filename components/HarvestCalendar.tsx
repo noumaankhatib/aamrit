@@ -50,8 +50,8 @@ const ROWS: Row[] = [
     peak: true,
   },
   {
-    label: "Pre-orders & Shipping",
-    caption: "Cold-chain dispatch pan-India",
+    label: "Free Delivery",
+    caption: "MH 4-5 days · Others 8-9 days",
     start: 3,
     span: 4,
     icon: "i-truck",
@@ -79,9 +79,9 @@ const HIGHLIGHTS = [
   },
   {
     icon: "i-truck",
-    title: "Deliveries",
-    body: "Late March to early June",
-    accent: "Cold-chain shipped pan-India in 2–4 days.",
+    title: "Free Delivery",
+    body: "All over India",
+    accent: "Maharashtra 4-5 days · Other States 8-9 days.",
   },
   {
     icon: "i-mango",

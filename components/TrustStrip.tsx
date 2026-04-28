@@ -7,7 +7,7 @@ const ITEMS = [
   { icon: "i-medal", label: "17+ years of mango farming" },
   { icon: "i-tree", label: "Direct from owned farms" },
   { icon: "i-shield", label: "100% no-carbide promise" },
-  { icon: "i-truck", label: "Pan-India delivery" },
+  { icon: "i-truck", label: "Free delivery all over India" },
   { icon: "i-globe", label: "Export-ready (Westmango)" },
   { icon: "i-heart", label: "100% satisfaction guarantee" },
 ];

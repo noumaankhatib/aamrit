@@ -4,10 +4,12 @@ const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
+      // Shopify CDN
+      { protocol: "https", hostname: "cdn.shopify.com" },
+      { protocol: "https", hostname: "*.myshopify.com" },
+      // Legacy/fallback image sources
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
 };

@@ -20,6 +20,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title:
     "Aamrit — Premium Alphonso Mangoes from our farms in Ratnagiri & Raigad | Yeskay Mango Farms",
   description:
@@ -29,6 +30,17 @@ export const metadata: Metadata = {
     description:
       "Premium Alphonso mangoes from our owned orchards in Ratnagiri & Raigad. Since 2008.",
   },
+};
+
+const organisationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Aamrit",
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  description:
+    "Premium Alphonso mangoes from owned orchards in Ratnagiri & Raigad, Maharashtra.",
+  brand: { "@type": "Brand", name: "Aamrit" },
+  parentOrganization: { "@type": "Organization", name: "Yeskay Mango Farms" },
 };
 
 export const viewport: Viewport = {
@@ -45,6 +57,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${poppins.variable}`}>
       <body className="font-sans" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organisationLd) }}
+        />
         <IconSprite />
         <LenisProvider>{children}</LenisProvider>
       </body>

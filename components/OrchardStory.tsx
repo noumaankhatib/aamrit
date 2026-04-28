@@ -27,8 +27,8 @@ const STEPS: Step[] = [
       "Hand-pruning by farm team",
     ],
     image:
-      "https://images.unsplash.com/photo-1591073113125-e46713c829ed?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Mango orchard in Maharashtra at golden hour",
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=85",
+    imageAlt: "Mango tree flowering with panicles in orchard",
   },
   {
     number: "02",
@@ -42,7 +42,7 @@ const STEPS: Step[] = [
       "Sorted on the tree",
     ],
     image:
-      "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=1600&q=85",
+      "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=1600&q=85",
     imageAlt: "Hands holding freshly hand-picked Alphonso mangoes",
   },
   {
@@ -57,23 +57,23 @@ const STEPS: Step[] = [
       "Daily hand-inspection",
     ],
     image:
-      "https://images.unsplash.com/photo-1591073113125-e46713c829ed?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Wooden crates of mangoes ripening on straw bedding",
+      "https://images.unsplash.com/photo-1519096845289-95806ee03a1a?auto=format&fit=crop&w=1600&q=85",
+    imageAlt: "Ripe golden mangoes arranged in traditional straw basket",
   },
   {
     number: "04",
     title: "Delivered Farm-Fresh",
-    season: "2 — 4 days transit",
-    tag: "Cold-chain shipped",
-    body: "Picked, packed, and dispatched within 24 hours from the farm. Cold-chain partners deliver pan-India in 2–4 days, so the mango that lands on your table is the one we picked off the tree this week.",
+    season: "Free Delivery",
+    tag: "All over India",
+    body: "Picked, packed, and dispatched within 24 hours from the farm. Free delivery across India — Maharashtra in 4-5 days, other states in 8-9 days. The mango that lands on your table is the one we picked off the tree this week.",
     bullets: [
       "Dispatched within 24 hours",
-      "Cold-chain pan-India",
+      "MH 4-5 days · Others 8-9 days",
       "100% replacement guarantee",
     ],
     image:
-      "https://images.unsplash.com/photo-1605027990121-cbae9e0642df?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Crates of mangoes ready for dispatch from the farm",
+      "https://images.unsplash.com/photo-1591073113125-e46713c829ed?auto=format&fit=crop&w=1600&q=85",
+    imageAlt: "Fresh mangoes ready for delivery to your doorstep",
   },
 ];
 

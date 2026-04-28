@@ -1,0 +1,557 @@
+/**
+ * Shopify Admin API client for order management
+ */
+
+const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ?? "";
+const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ?? "";
+
+const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-01/graphql.json`;
+
+// Order types
+export interface ShopifyOrder {
+  id: string;
+  orderNumber: number;
+  name: string;
+  createdAt: string;
+  displayFinancialStatus: string;
+  displayFulfillmentStatus: string;
+  totalPriceSet: {
+    shopMoney: { amount: string; currencyCode: string };
+  };
+  subtotalPriceSet: {
+    shopMoney: { amount: string; currencyCode: string };
+  };
+  totalShippingPriceSet: {
+    shopMoney: { amount: string; currencyCode: string };
+  };
+  totalTaxSet: {
+    shopMoney: { amount: string; currencyCode: string };
+  };
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+    ordersCount: string;
+  } | null;
+  shippingAddress: {
+    firstName: string;
+    lastName: string;
+    address1: string;
+    address2: string | null;
+    city: string;
+    province: string;
+    country: string;
+    zip: string;
+    phone: string | null;
+  } | null;
+  billingAddress: {
+    firstName: string;
+    lastName: string;
+    address1: string;
+    address2: string | null;
+    city: string;
+    province: string;
+    country: string;
+    zip: string;
+  } | null;
+  lineItems: {
+    edges: Array<{
+      node: {
+        id: string;
+        title: string;
+        variantTitle: string | null;
+        sku: string | null;
+        quantity: number;
+        originalUnitPriceSet: {
+          shopMoney: { amount: string; currencyCode: string };
+        };
+        discountedUnitPriceSet: {
+          shopMoney: { amount: string; currencyCode: string };
+        };
+        image: { url: string; altText: string | null } | null;
+      };
+    }>;
+  };
+  fulfillments: Array<{
+    id: string;
+    status: string;
+    trackingInfo: Array<{
+      company: string | null;
+      number: string | null;
+      url: string | null;
+    }>;
+    createdAt: string;
+  }>;
+  transactions: Array<{
+    id: string;
+    kind: string;
+    status: string;
+    gateway: string;
+    amountSet: {
+      shopMoney: { amount: string; currencyCode: string };
+    };
+    createdAt: string;
+  }>;
+  note: string | null;
+  tags: string[];
+  test: boolean;
+  cancelledAt: string | null;
+  cancelReason: string | null;
+}
+
+export interface OrderListItem {
+  id: string;
+  orderNumber: number;
+  name: string;
+  createdAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  total: string;
+  currency: string;
+  customerName: string;
+  customerEmail: string;
+  itemCount: number;
+  isTest: boolean;
+}
+
+interface AdminAPIResponse<T> {
+  data?: T;
+  errors?: Array<{ message: string }>;
+}
+
+async function adminFetch<T>(
+  query: string,
+  variables: Record<string, unknown> = {}
+): Promise<T> {
+  if (!SHOPIFY_DOMAIN || !ADMIN_API_TOKEN) {
+    throw new Error(
+      "Shopify Admin API credentials not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_ACCESS_TOKEN."
+    );
+  }
+
+  const response = await fetch(ADMIN_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": ADMIN_API_TOKEN,
+    },
+    body: JSON.stringify({ query, variables }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Shopify Admin API error: ${response.status} ${response.statusText}`);
+  }
+
+  const json: AdminAPIResponse<T> = await response.json();
+
+  if (json.errors?.length) {
+    console.error("Shopify Admin GraphQL errors:", json.errors);
+    throw new Error(json.errors[0].message);
+  }
+
+  if (!json.data) {
+    throw new Error("No data returned from Shopify Admin API");
+  }
+
+  return json.data;
+}
+
+const ORDER_FRAGMENT = `
+  fragment OrderFields on Order {
+    id
+    name
+    createdAt
+    displayFinancialStatus
+    displayFulfillmentStatus
+    totalPriceSet {
+      shopMoney { amount currencyCode }
+    }
+    subtotalPriceSet {
+      shopMoney { amount currencyCode }
+    }
+    totalShippingPriceSet {
+      shopMoney { amount currencyCode }
+    }
+    totalTaxSet {
+      shopMoney { amount currencyCode }
+    }
+    customer {
+      id
+      firstName
+      lastName
+      email
+      phone
+      ordersCount
+    }
+    shippingAddress {
+      firstName
+      lastName
+      address1
+      address2
+      city
+      province
+      country
+      zip
+      phone
+    }
+    billingAddress {
+      firstName
+      lastName
+      address1
+      address2
+      city
+      province
+      country
+      zip
+    }
+    lineItems(first: 50) {
+      edges {
+        node {
+          id
+          title
+          variantTitle
+          sku
+          quantity
+          originalUnitPriceSet {
+            shopMoney { amount currencyCode }
+          }
+          discountedUnitPriceSet {
+            shopMoney { amount currencyCode }
+          }
+          image {
+            url
+            altText
+          }
+        }
+      }
+    }
+    fulfillments {
+      id
+      status
+      trackingInfo {
+        company
+        number
+        url
+      }
+      createdAt
+    }
+    transactions(first: 10) {
+      id
+      kind
+      status
+      gateway
+      amountSet {
+        shopMoney { amount currencyCode }
+      }
+      createdAt
+    }
+    note
+    tags
+    test
+    cancelledAt
+    cancelReason
+  }
+`;
+
+function extractOrderNumber(gid: string): number {
+  const match = gid.match(/Order\/(\d+)/);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+export async function getOrders(options: {
+  first?: number;
+  status?: "open" | "closed" | "cancelled" | "any";
+  financialStatus?: string;
+  fulfillmentStatus?: string;
+  query?: string;
+} = {}): Promise<OrderListItem[]> {
+  const { first = 50, status = "any", query: searchQuery } = options;
+
+  let queryFilter = "";
+  if (status !== "any") {
+    queryFilter = `status:${status}`;
+  }
+  if (searchQuery) {
+    queryFilter = searchQuery;
+  }
+
+  const query = `
+    query GetOrders($first: Int!, $query: String) {
+      orders(first: $first, sortKey: CREATED_AT, reverse: true, query: $query) {
+        edges {
+          node {
+            id
+            name
+            createdAt
+            displayFinancialStatus
+            displayFulfillmentStatus
+            totalPriceSet {
+              shopMoney { amount currencyCode }
+            }
+            customer {
+              firstName
+              lastName
+              email
+            }
+            lineItems(first: 1) {
+              edges {
+                node { quantity }
+              }
+            }
+            test
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<any>(query, { first, query: queryFilter || null });
+
+    return data.orders.edges.map((edge: any) => {
+      const order = edge.node;
+      const customer = order.customer;
+      const itemCount = order.lineItems.edges.reduce(
+        (sum: number, e: any) => sum + e.node.quantity,
+        0
+      );
+
+      return {
+        id: order.id,
+        orderNumber: extractOrderNumber(order.id),
+        name: order.name,
+        createdAt: order.createdAt,
+        financialStatus: order.displayFinancialStatus,
+        fulfillmentStatus: order.displayFulfillmentStatus,
+        total: order.totalPriceSet.shopMoney.amount,
+        currency: order.totalPriceSet.shopMoney.currencyCode,
+        customerName: customer
+          ? `${customer.firstName || ""} ${customer.lastName || ""}`.trim() || "Guest"
+          : "Guest",
+        customerEmail: customer?.email || "",
+        itemCount,
+        isTest: order.test,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return [];
+  }
+}
+
+export async function getOrder(orderId: string): Promise<ShopifyOrder | null> {
+  const query = `
+    query GetOrder($id: ID!) {
+      order(id: $id) {
+        ...OrderFields
+      }
+    }
+    ${ORDER_FRAGMENT}
+  `;
+
+  try {
+    const data = await adminFetch<{ order: any }>(query, { id: orderId });
+
+    if (!data.order) return null;
+
+    return {
+      ...data.order,
+      orderNumber: extractOrderNumber(data.order.id),
+    };
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    return null;
+  }
+}
+
+export async function getOrderByNumber(orderNumber: number): Promise<ShopifyOrder | null> {
+  const query = `
+    query GetOrderByName($query: String!) {
+      orders(first: 1, query: $query) {
+        edges {
+          node {
+            ...OrderFields
+          }
+        }
+      }
+    }
+    ${ORDER_FRAGMENT}
+  `;
+
+  try {
+    const data = await adminFetch<any>(query, { query: `name:#${orderNumber}` });
+
+    const order = data.orders.edges[0]?.node;
+    if (!order) return null;
+
+    return {
+      ...order,
+      orderNumber: extractOrderNumber(order.id),
+    };
+  } catch (error) {
+    console.error("Error fetching order by number:", error);
+    return null;
+  }
+}
+
+export async function fulfillOrder(
+  orderId: string,
+  trackingCompany?: string,
+  trackingNumber?: string,
+  trackingUrl?: string
+): Promise<boolean> {
+  const query = `
+    mutation FulfillOrder($input: FulfillmentCreateV2Input!) {
+      fulfillmentCreateV2(fulfillment: $input) {
+        fulfillment {
+          id
+          status
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const trackingInfo = trackingNumber
+      ? [{ company: trackingCompany, number: trackingNumber, url: trackingUrl }]
+      : [];
+
+    const data = await adminFetch<any>(query, {
+      input: {
+        orderId,
+        trackingInfo,
+        notifyCustomer: true,
+      },
+    });
+
+    if (data.fulfillmentCreateV2?.userErrors?.length) {
+      console.error("Fulfillment errors:", data.fulfillmentCreateV2.userErrors);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error fulfilling order:", error);
+    return false;
+  }
+}
+
+export async function cancelOrder(orderId: string, reason?: string): Promise<boolean> {
+  const query = `
+    mutation CancelOrder($input: OrderCancelInput!) {
+      orderCancel(input: $input) {
+        job {
+          id
+        }
+        orderCancelUserErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<any>(query, {
+      input: {
+        orderId,
+        reason: reason || "OTHER",
+        notifyCustomer: true,
+        refund: true,
+      },
+    });
+
+    if (data.orderCancel?.orderCancelUserErrors?.length) {
+      console.error("Cancel errors:", data.orderCancel.orderCancelUserErrors);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error cancelling order:", error);
+    return false;
+  }
+}
+
+export async function getOrderStats(): Promise<{
+  totalOrders: number;
+  unfulfilled: number;
+  totalRevenue: number;
+  currency: string;
+}> {
+  const query = `
+    query OrderStats {
+      ordersCount: orders(first: 1) {
+        edges { node { id } }
+        pageInfo { hasNextPage }
+      }
+      unfulfilled: orders(first: 250, query: "fulfillment_status:unfulfilled") {
+        edges { node { id } }
+      }
+      recentOrders: orders(first: 250) {
+        edges {
+          node {
+            totalPriceSet {
+              shopMoney { amount currencyCode }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<any>(query);
+
+    const totalRevenue = data.recentOrders.edges.reduce(
+      (sum: number, e: any) => sum + parseFloat(e.node.totalPriceSet.shopMoney.amount),
+      0
+    );
+
+    const currency =
+      data.recentOrders.edges[0]?.node.totalPriceSet.shopMoney.currencyCode || "INR";
+
+    return {
+      totalOrders: data.recentOrders.edges.length,
+      unfulfilled: data.unfulfilled.edges.length,
+      totalRevenue,
+      currency,
+    };
+  } catch (error) {
+    console.error("Error fetching order stats:", error);
+    return { totalOrders: 0, unfulfilled: 0, totalRevenue: 0, currency: "INR" };
+  }
+}
+
+export function formatMoney(amount: string | number, currency: string = "INR"): string {
+  const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(num);
+}
+
+export function formatDate(dateString: string): string {
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(dateString));
+}
+
+export function formatDateShort(dateString: string): string {
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+  }).format(new Date(dateString));
+}

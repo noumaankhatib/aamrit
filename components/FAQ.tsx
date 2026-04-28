@@ -6,6 +6,10 @@ import { fadeUp, staggerContainer, viewportOnce, easing } from "@/lib/animations
 
 const ITEMS = [
   {
+    q: "Is delivery really free? How long does it take?",
+    a: "Yes, delivery is completely free all over India! Maharashtra orders arrive in 4-5 days, and all other states receive their mangoes in 8-9 days. We dispatch within 24 hours of your order and use cold-chain logistics to ensure your mangoes arrive perfectly fresh.",
+  },
+  {
     q: "How do I know your mangoes are really naturally ripened?",
     a: "Three things: (1) we own every farm — there's no point in our chain where a middleman could swap fruit; (2) you can visit any of our 10 plots in Ratnagiri or Raigad at any time during the season; (3) artificially ripened Alphonso looks uniformly yellow with no aroma — ours ripen unevenly with a strong floral smell, which is the natural sign.",
   },
@@ -84,8 +88,7 @@ export default function FAQ() {
         >
           <span className="gold-rule">Common Questions</span>
           <h2 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.05]">
-            Honest answers,{" "}
-            <em className="grad-text-static not-italic">in plain English.</em>
+            <em className="grad-text-static not-italic">FAQ</em>
           </h2>
         </motion.div>
 

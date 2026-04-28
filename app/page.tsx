@@ -1,9 +1,8 @@
-import Navbar from "@/components/Navbar";
+import ShopNav from "@/components/shop/ShopNav";
 import Hero from "@/components/Hero";
 import TrustStrip from "@/components/TrustStrip";
 import About from "@/components/About";
 import Journey from "@/components/Journey";
-import MangoVarieties from "@/components/MangoVarieties";
 import FarmLocations from "@/components/FarmLocations";
 import OrchardStory from "@/components/OrchardStory";
 import QualitySection from "@/components/QualitySection";
@@ -16,22 +15,35 @@ import FAQ from "@/components/FAQ";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
+import { getProducts } from "@/lib/shopify";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const shopifyProducts = await getProducts({ first: 10 });
+  
+  const products = shopifyProducts.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    description: p.description,
+    priceCents: p.priceCents,
+    weightGrams: p.weightGrams,
+    imageUrl: p.imageUrl,
+    featured: p.featured,
+  }));
+
   return (
     <>
-      <Navbar />
+      <ShopNav />
       <main id="top">
         <Hero />
+        <Packaging products={products} />
         <TrustStrip />
         <About />
         <Journey />
-        <MangoVarieties />
         <FarmLocations />
         <OrchardStory />
         <QualitySection />
         <HarvestCalendar />
-        <Packaging />
         <Testimonials />
         <Brands />
         <B2BSection />
