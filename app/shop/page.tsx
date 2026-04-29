@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getProducts, getCategories } from "@/lib/shopify";
-import { formatINR, formatWeight } from "@/lib/money";
+import { formatINR, formatGradeWeightDisplay } from "@/lib/money";
 import ShopNav from "@/components/shop/ShopNav";
 
 export const metadata: Metadata = {
@@ -58,8 +58,7 @@ export default async function ShopPage({
             </h1>
             <p className="mt-5 text-charcoal/70 text-lg leading-relaxed">
               Naturally ripened on our 70-year-old family orchards across Ratnagiri
-              & Raigad. No artificial ripening. No middlemen. Delivered fresh
-              within 48 hours.
+              & Raigad. No artificial ripening. No middlemen. Delivered fresh — free across India (Maharashtra typically 4–5 days; other states 8–9 days).
             </p>
           </header>
 
@@ -287,7 +286,7 @@ export default async function ShopPage({
                         <div className="text-right">
                           <p className="text-xs text-charcoal/50 mb-0.5">Weight</p>
                           <p className="text-sm font-medium text-charcoal/70">
-                            {formatWeight(p.weightGrams)}/pc
+                            {formatGradeWeightDisplay(grade, p.weightGrams)}
                           </p>
                         </div>
                       </div>

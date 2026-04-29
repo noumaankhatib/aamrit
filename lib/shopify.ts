@@ -110,16 +110,39 @@ async function shopifyFetch<T>(
   return json.data;
 }
 
+/** Carton weights are sometimes stored on variants; ≥1 kg is not plausible per mango. */
+function normalizePerPieceWeightGrams(weightGrams: number, title: string): number {
+  const gradeMatch = title.match(/Grade\s*(A\d)/i);
+  const midpoint: Record<string, number> = { A1: 300, A2: 225, A3: 175 };
+  const g = gradeMatch ? gradeMatch[1].toUpperCase() : null;
+  const graded = g && midpoint[g] ? midpoint[g] : 300;
+
+  if (!Number.isFinite(weightGrams) || weightGrams <= 0) return graded;
+  if (weightGrams >= 1000) return graded;
+  return Math.round(weightGrams);
+}
+
 // Transform Shopify product to match current frontend shape
 function transformProduct(shopifyProduct: any): ShopifyProduct {
   const variant = shopifyProduct.variants?.edges?.[0]?.node;
   const priceAmount = parseFloat(variant?.price?.amount ?? "0");
   const priceCents = Math.round(priceAmount * 100);
 
-  // Extract weight from variant or metafields
-  const weightGrams = variant?.weight
-    ? Math.round(variant.weight * (variant.weightUnit === "KILOGRAMS" ? 1000 : 1))
-    : 850; // Default weight
+  const rawKg = variant?.weight;
+  const kg =
+    typeof rawKg === "number"
+      ? rawKg
+      : typeof rawKg === "string"
+        ? parseFloat(rawKg)
+        : NaN;
+  const variantWeightGrams =
+    Number.isFinite(kg) && kg > 0
+      ? Math.round(kg * (variant.weightUnit === "KILOGRAMS" ? 1000 : 1))
+      : null;
+  const weightGrams = normalizePerPieceWeightGrams(
+    variantWeightGrams ?? 850,
+    shopifyProduct.title ?? ""
+  );
 
   // Extract custom fields from metafields
   const metafields = shopifyProduct.metafields?.edges?.reduce(
@@ -175,6 +198,27 @@ function transformCollection(collection: any): ShopifyCategory {
     name: collection.title,
     slug: collection.handle,
   };
+}
+
+/** Default Shopify starter collection (“Food & beverage … example/sample products”). Hidden from storefront. */
+function isFoodAndBeverageExampleCollection(cat: ShopifyCategory): boolean {
+  const slug = cat.slug.trim().toLowerCase();
+  const title = cat.name.trim().toLowerCase();
+  const haystack = `${slug} ${title}`;
+
+  const mentionsFood = /\bfood\b/u.test(slug + title);
+  const mentionsBeverages =
+    /\bbev(erage)?s?\b/u.test(haystack) || /\bdrinks?\b/u.test(title);
+  const exampleish =
+    /\b(example|examples|sample|samples|demo)\b/i.test(haystack) ||
+    /\bgetting started\b/i.test(haystack);
+
+  const slugLooksLikeStarterSample =
+    slug.includes("food") &&
+    (slug.includes("beverage") || slug.includes("beverages") || slug.includes("drink")) &&
+    (slug.includes("sample") || slug.includes("example"));
+
+  return mentionsFood && mentionsBeverages && (exampleish || slugLooksLikeStarterSample);
 }
 
 // GraphQL Fragments
@@ -279,6 +323,17 @@ export async function getProducts(options: {
 } = {}): Promise<ShopifyProduct[]> {
   const { categorySlug, searchQuery, first = 50 } = options;
 
+  if (
+    categorySlug &&
+    isFoodAndBeverageExampleCollection({
+      id: "",
+      name: "",
+      slug: categorySlug,
+    })
+  ) {
+    return [];
+  }
+
   let query: string;
   let variables: Record<string, unknown>;
 
@@ -342,7 +397,10 @@ export async function getProducts(options: {
 
     const products = edges
       .map((edge: any) => transformProduct(edge.node))
-      .filter((p: ShopifyProduct) => p.active)
+      .filter(
+        (p: ShopifyProduct) =>
+          p.active && !(p.category && isFoodAndBeverageExampleCollection(p.category)),
+      )
       .sort((a: ShopifyProduct, b: ShopifyProduct) => {
         // Extract grade from product name (e.g., "Grade A1" -> "A1")
         const gradeA = a.name.match(/Grade\s*(A\d)/i)?.[1]?.toUpperCase();
@@ -421,7 +479,12 @@ export async function getRelatedProducts(
 
     const products = data.collection?.products?.edges
       ?.map((edge: any) => transformProduct(edge.node))
-      .filter((p: ShopifyProduct) => p.id !== productId && p.active)
+      .filter(
+        (p: ShopifyProduct) =>
+          p.id !== productId &&
+          p.active &&
+          !(p.category && isFoodAndBeverageExampleCollection(p.category)),
+      )
       .slice(0, limit) ?? [];
 
     return products;
@@ -474,8 +537,9 @@ export async function getCategories(): Promise<ShopifyCategory[]> {
   try {
     const data = await shopifyFetch<any>(query, {}, { revalidate: 3600 });
 
-    return data.collections?.edges
-      ?.map((edge: any) => transformCollection(edge.node)) ?? [];
+    return (
+      data.collections?.edges?.map((edge: any) => transformCollection(edge.node)) ?? []
+    ).filter((c: ShopifyCategory) => !isFoodAndBeverageExampleCollection(c));
   } catch (error) {
     console.error("Error fetching categories:", error);
     return [];

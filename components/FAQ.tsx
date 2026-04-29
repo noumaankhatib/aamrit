@@ -19,7 +19,7 @@ const ITEMS = [
   },
   {
     q: "What if my mangoes arrive damaged?",
-    a: "100% replacement, no questions asked. WhatsApp us a photo within 48 hours of delivery and we'll dispatch a fresh crate at our cost. Our 100% Satisfaction Guarantee has been part of how we do business since 2008.",
+    a: "100% replacement, no questions asked. WhatsApp us a photo soon after unpacking if anything arrives damaged or below grade — we'll dispatch a fresh crate at our cost. Our 100% Satisfaction Guarantee has been part of how we do business since 2008.",
   },
   {
     q: "Why is your Alphonso pricier than what I see in local markets?",

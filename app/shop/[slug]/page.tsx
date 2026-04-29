@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "@/lib/shopify";
-import { formatINR, formatWeight } from "@/lib/money";
+import { DELIVERY_INFO, formatINR, formatGradeWeightDisplay } from "@/lib/money";
 import ShopNav from "@/components/shop/ShopNav";
 import AddToCartForm from "@/components/shop/AddToCartForm";
 import ProductGallery from "@/components/shop/ProductGallery";
@@ -44,7 +44,7 @@ const gradeFeatures: Record<string, { tagline: string; highlights: string[]; col
   A1: {
     tagline: "The Crown Jewel",
     highlights: [
-      "Largest size (256-300g each)",
+      "Largest size (250-350g each)",
       "Perfect golden-saffron color",
       "Exceptional sweetness (22+ Brix)",
       "Gift-worthy presentation",
@@ -55,7 +55,7 @@ const gradeFeatures: Record<string, { tagline: string; highlights: string[]; col
   A2: {
     tagline: "Premium Excellence",
     highlights: [
-      "Large size (205-255g each)",
+      "Large size (200-250g each)",
       "Rich golden color",
       "Excellent sweetness (20+ Brix)",
       "Perfect for family enjoyment",
@@ -66,7 +66,7 @@ const gradeFeatures: Record<string, { tagline: string; highlights: string[]; col
   A3: {
     tagline: "Classic Goodness",
     highlights: [
-      "Standard size (176-205g each)",
+      "Standard size (150-200g each)",
       "Beautiful golden hue",
       "Great sweetness (18+ Brix)",
       "Excellent value for money",
@@ -83,6 +83,61 @@ const defaultFeatures = [
   "GI certified Ratnagiri",
   "Sustainably grown",
 ];
+
+function toPlainProductDescription(htmlOrText: string): string {
+  if (!htmlOrText?.trim()) return "";
+  return htmlOrText
+    .replace(/<\/p\s*>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\u00a0/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** Break long storefront copy into scannable paragraphs. */
+function splitAboutParagraphs(plain: string): string[] {
+  const trimmed = plain.trim();
+  if (!trimmed) return [];
+
+  const blocks = trimmed.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+  if (blocks.length >= 2) return blocks;
+
+  const text = blocks[0] ?? trimmed;
+  if (text.length < 360) return [text];
+
+  const sentences =
+    text.match(/[^.!?…]*[.!?…]+(?:\s|$)|[^.!?…]+$/g)?.map((s) => s.trim()).filter(Boolean) ?? [text];
+  if (sentences.length < 4) return [text];
+
+  const nPara = Math.min(4, Math.ceil(sentences.length / 3));
+  const per = Math.ceil(sentences.length / nPara);
+  const out: string[] = [];
+  for (let i = 0; i < sentences.length; i += per) {
+    out.push(sentences.slice(i, i + per).join(" "));
+  }
+  return out;
+}
+
+function getDefaultAboutParagraphs(grade: string | null): string[] {
+  const g = grade?.toUpperCase() ?? "";
+  const gradeHeart =
+    g === "A1"
+      ? "Grade A1 is crown-jewel fruit: voluptuous mango picked for symmetrical curves, a coral blush sweeping the shoulder, and a lustre photographers chase before anyone takes a bite."
+      : g === "A2"
+      ? "Grade A2 balances generosity and purity of flavour—the household favourite: roomy fruit, nectar that ribbons down your chin, and aroma that politely announces itself across the dining room."
+      : g === "A3"
+      ? "Grade A3 keeps Alphonso’s soul in a petite frame—ideal diced over yoghurt, folded into shakes and kulfi, or eaten from the chopping board between meetings."
+      : "Across our Maharashtra orchards inside the GI-tagged corridor, trees are coached by instincts earned over generations—fruit is chosen when the cheek softens naturally, never when a calendar insists.";
+
+  return [
+    "Ratnagiri Alphonso is the mango other varieties borrow adjectives from: fibre-free custard flesh, satin sheen beneath the peel, perfume that escapes the rim of the crate before you lift the lid.",
+    gradeHeart,
+    "Ripening honours the Konkan way—fruits nested in breathable straw till their shoulders blush evenly. No calcium carbide, no hurried gas regimes—only airflow, neighbours lending ethylene shade to neighbours.",
+    "We box while the orchard’s breath still clings—harvest sorted at dawn when shoulders yield, cushioned immediately, dispatched so sweetness and salt air meet your doorway in the same week they left the grove.",
+  ];
+}
 
 export default async function ProductDetailPage({
   params,
@@ -119,6 +174,11 @@ export default async function ProductDetailPage({
   const grade = gradeMatch ? gradeMatch[1].toUpperCase() : null;
   const gradeInfo = grade ? gradeFeatures[grade] : null;
   const features = gradeInfo?.highlights || defaultFeatures;
+
+  const plainDescription = toPlainProductDescription(product.description);
+  const fromStoreAbout = splitAboutParagraphs(plainDescription);
+  const aboutParagraphs =
+    fromStoreAbout.length > 0 ? fromStoreAbout : getDefaultAboutParagraphs(grade);
 
   return (
     <>
@@ -181,7 +241,7 @@ export default async function ProductDetailPage({
                   <svg className="w-5 h-5 text-leaf" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-xs font-semibold text-charcoal/70">48hr Delivery</span>
+                  <span className="text-xs font-semibold text-charcoal/70">{DELIVERY_INFO.shortText}</span>
                 </div>
               </div>
             </div>
@@ -282,7 +342,9 @@ export default async function ProductDetailPage({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                       </svg>
                       <p className="text-xs text-charcoal/60">Weight</p>
-                      <p className="font-semibold text-charcoal text-sm">{formatWeight(product.weightGrams)}/pc</p>
+                      <p className="font-semibold text-charcoal text-sm">
+                        {formatGradeWeightDisplay(grade, product.weightGrams)}
+                      </p>
                     </div>
                     <div className="text-center p-3 rounded-xl bg-white/60">
                       <svg className="w-5 h-5 text-gold mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,8 +357,10 @@ export default async function ProductDetailPage({
                       <svg className="w-5 h-5 text-gold mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-xs text-charcoal/60">Freshness</p>
-                      <p className="font-semibold text-charcoal text-sm">48hr delivery</p>
+                      <p className="text-xs text-charcoal/60">Delivery</p>
+                      <p className="font-semibold text-charcoal text-sm leading-snug">
+                        MH {DELIVERY_INFO.maharashtra.days} · Others {DELIVERY_INFO.otherStates.days} days
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -352,18 +416,69 @@ export default async function ProductDetailPage({
               {/* Description - Enhanced with tabs-like sections */}
               <div className="mt-10 space-y-6">
                 {/* About Section */}
-                <div className="p-6 rounded-3xl bg-white border border-cream-100 shadow-sm">
-                  <h2 className="font-serif text-xl text-charcoal mb-4 flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                <div className="relative overflow-hidden rounded-[1.65rem] border border-gold-200/40 bg-gradient-to-br from-white via-cream-50/50 to-gold-50/40 p-7 sm:p-9 shadow-[0_24px_50px_-32px_rgba(46,125,80,0.15)]">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-gold-300/25 blur-3xl"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -bottom-16 -left-12 h-44 w-44 rounded-full bg-leaf/15 blur-3xl"
+                  />
+                  <div className="relative">
+                    <div className="mb-5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center rounded-full border border-gold-200/60 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-saffron/90 shadow-sm">
+                        Story of the fruit
+                      </span>
+                      {grade && (
+                        <span className="inline-flex items-center rounded-full bg-gradient-to-r from-gold-500/90 to-amber-500/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                          {grade} · Konkan
+                        </span>
+                      )}
                     </div>
-                    About this Mango
-                  </h2>
-                  <p className="text-charcoal/70 leading-relaxed">
-                    {product.description || `Experience the legendary taste of authentic Ratnagiri Alphonso mangoes, known worldwide as the "King of Mangoes." Our ${grade || ''} grade mangoes are hand-picked from 70-year-old orchards in the Konkan belt, naturally ripened on the tree, and delivered fresh to your doorstep within 48 hours. Each mango carries the distinctive saffron-golden color, buttery texture, and sweet aromatic flavor that has made Ratnagiri Alphonso a global delicacy.`}
-                  </p>
+                    <h2 className="font-serif text-2xl sm:text-[1.65rem] leading-tight text-charcoal">
+                      About This Mango
+                    </h2>
+                    {fromStoreAbout.length === 0 && (
+                      <p className="mt-2 max-w-prose text-sm leading-relaxed text-charcoal/55">
+                        Grown where the Sahyadri leans toward the Arabian Sea—where laterite soil and saline breeze teach every tree how to fold sunshine into juice.
+                      </p>
+                    )}
+                    <div className="mt-6 space-y-5 border-l-2 border-gold-300/60 pl-5 sm:pl-6">
+                      {aboutParagraphs.map((para, idx) => (
+                        <p
+                          key={idx}
+                          className={
+                            idx === 0
+                              ? "font-serif text-[1.05rem] leading-[1.65] text-charcoal sm:text-lg"
+                              : "text-[0.9375rem] leading-relaxed text-charcoal/78 sm:text-[15px]"
+                          }
+                        >
+                          {para}
+                        </p>
+                      ))}
+                    </div>
+                    <dl className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-center backdrop-blur-sm shadow-sm">
+                        <dt className="text-[10px] font-semibold uppercase tracking-wider text-charcoal/45">
+                          Ripening
+                        </dt>
+                        <dd className="mt-1 font-medium text-charcoal/85">Straw-lined &amp; natural</dd>
+                      </div>
+                      <div className="rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-center backdrop-blur-sm shadow-sm">
+                        <dt className="text-[10px] font-semibold uppercase tracking-wider text-charcoal/45">
+                          Traceability
+                        </dt>
+                        <dd className="mt-1 font-medium text-charcoal/85">Farm lot to your door</dd>
+                      </div>
+                      <div className="rounded-2xl border border-white/70 bg-white/60 px-4 py-3 text-center backdrop-blur-sm shadow-sm">
+                        <dt className="text-[10px] font-semibold uppercase tracking-wider text-charcoal/45">
+                          Promise
+                        </dt>
+                        <dd className="mt-1 font-medium text-charcoal/85">No carbide shortcuts</dd>
+                      </div>
+                    </dl>
+                  </div>
                 </div>
 
                 {/* Origin Story */}
@@ -403,7 +518,7 @@ export default async function ProductDetailPage({
                       <span className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center flex-shrink-0 text-gold-700 font-bold text-sm">4</span>
                       <div>
                         <p className="font-medium text-charcoal text-sm">Express Delivery</p>
-                        <p className="text-xs text-charcoal/60">48hr farm-to-door</p>
+                        <p className="text-xs text-charcoal/60">Cold-chain onward to your PIN</p>
                       </div>
                     </div>
                   </div>
@@ -547,7 +662,9 @@ export default async function ProductDetailPage({
                           </div>
                           <div className="text-right">
                             <p className="text-xs text-charcoal/50">Weight</p>
-                            <p className="text-sm font-medium text-charcoal/70">{formatWeight(r.weightGrams)}/pc</p>
+                            <p className="text-sm font-medium text-charcoal/70">
+                              {formatGradeWeightDisplay(relatedGrade ?? null, r.weightGrams)}
+                            </p>
                           </div>
                         </div>
                       </div>

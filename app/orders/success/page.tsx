@@ -78,7 +78,7 @@ export default async function OrderSuccessPage({
               <div className="text-left">
                 <p className="font-medium text-charcoal">Fresh from our orchards</p>
                 <p className="text-sm text-charcoal/60">
-                  Your mangoes will be hand-picked and shipped within 24-48 hours
+                  Your mangoes are prepared for dispatch as soon as they pass ripeness checks — you&apos;ll receive tracking updates by SMS.
                 </p>
               </div>
             </div>

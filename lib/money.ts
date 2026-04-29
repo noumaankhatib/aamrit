@@ -6,6 +6,25 @@ export function formatWeight(grams: number) {
   return `${grams} g`;
 }
 
+/** Typical per-mango ranges by Alphonso grade (A1–A3 sold by the dozen). */
+const GRADE_WEIGHT_PER_PC_DISPLAY: Record<string, string> = {
+  A1: "250-350 g/pc",
+  A2: "200-250 g/pc",
+  A3: "150-200 g/pc",
+};
+
+/** Weight line for PDP/shop cards: fixed range by grade when known, else Shopify weight. */
+export function formatGradeWeightDisplay(
+  grade: string | null | undefined,
+  weightGramsFallback: number
+): string {
+  const key = grade?.toUpperCase();
+  if (key && GRADE_WEIGHT_PER_PC_DISPLAY[key]) {
+    return GRADE_WEIGHT_PER_PC_DISPLAY[key];
+  }
+  return `${formatWeight(weightGramsFallback)}/pc`;
+}
+
 export function formatINR(cents: number) {
   const rupees = cents / 100;
   return new Intl.NumberFormat("en-IN", {
