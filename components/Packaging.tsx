@@ -68,7 +68,12 @@ export default function Packaging({ products }: PackagingProps) {
           variants={fadeUp}
           className="max-w-3xl mx-auto text-center"
         >
-          <span className="gold-rule">Alphonso Mangoes · {products.length} Grades</span>
+          <Link
+            href="/shop"
+            className="gold-rule mx-auto inline-flex max-w-full justify-center rounded-sm transition-[opacity,filter] hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2"
+          >
+            Alphonso Mangoes · {products.length} Grades
+          </Link>
           <h2 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.05]">
             Pick your size.{" "}
             <span className="grad-text-static">We&apos;ll pack the season.</span>
@@ -98,30 +103,30 @@ export default function Packaging({ products }: PackagingProps) {
           {sortByGrade(products).map((product) => {
             const info = getGradeInfo(product.name);
             return (
-              <motion.article
-                key={product.id}
-                variants={fadeUp}
-                className={`card-edge tilt overflow-hidden group relative ${
-                  info.popular ? "ring-2 ring-gold" : ""
-                }`}
-              >
-                {info.popular && (
-                  <div className="absolute top-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full ribbon text-white text-[11px] font-semibold tracking-wider uppercase">
-                    <svg className="w-3 h-3" aria-hidden="true">
-                      <use href="#i-star" />
-                    </svg>
-                    Most Popular
-                  </div>
-                )}
+              <motion.article key={product.id} variants={fadeUp} className="h-full">
+                <Link
+                  href={`/shop/${product.slug}`}
+                  className={`card-edge tilt group relative flex h-full flex-col overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-2 ${
+                    info.popular ? "ring-2 ring-gold" : ""
+                  }`}
+                >
+                  {info.popular && (
+                    <div className="pointer-events-none absolute top-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full ribbon text-white text-[11px] font-semibold tracking-wider uppercase">
+                      <svg className="w-3 h-3" aria-hidden="true">
+                        <use href="#i-star" />
+                      </svg>
+                      Most Popular
+                    </div>
+                  )}
 
-                <div className="relative h-64 overflow-hidden bg-cream-50">
+                  <div className="relative h-64 shrink-0 overflow-hidden bg-cream-50">
                   {product.imageUrl ? (
                     <Image
                       src={product.imageUrl}
-                      alt={product.name}
+                      alt=""
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                      className="pointer-events-none object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-charcoal/20">
@@ -138,44 +143,43 @@ export default function Packaging({ products }: PackagingProps) {
                     </span>
                   )}
 
-                  <div className="absolute left-4 bottom-4 z-10 flex flex-col items-start drop-shadow-[0_6px_12px_rgba(0,0,0,0.25)]">
-                    <span
-                      className="grad-gold-rich text-white font-serif font-bold text-xl sm:text-2xl px-4 py-1.5 leading-none"
-                      style={{ borderRadius: "10px 10px 10px 0" }}
-                    >
-                      {info.grade}
-                    </span>
-                    <span
-                      className="grad-leaf text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 leading-none -mt-px"
-                      style={{ borderRadius: "0 0 10px 10px" }}
-                    >
-                      {info.weight} per piece
-                    </span>
+                    <div className="pointer-events-none absolute left-4 bottom-4 z-10 flex flex-col items-start drop-shadow-[0_6px_12px_rgba(0,0,0,0.25)]">
+                      <span
+                        className="grad-gold-rich text-white font-serif font-bold text-xl sm:text-2xl px-4 py-1.5 leading-none"
+                        style={{ borderRadius: "10px 10px 10px 0" }}
+                      >
+                        {info.grade}
+                      </span>
+                      <span
+                        className="grad-leaf text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 leading-none -mt-px"
+                        style={{ borderRadius: "0 0 10px 10px" }}
+                      >
+                        {info.weight} per piece
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-5">
-                  <h3 className="font-serif text-lg text-charcoal font-semibold">{product.name}</h3>
-                  <div className="flex items-baseline justify-between gap-2 mt-2">
-                    <p className="text-charcoal/70 text-sm leading-snug">12 mangoes per box</p>
-                    <span className="text-saffron font-serif text-xl font-bold shrink-0">
-                      {formatPrice(product.priceCents)}
+                  <div className="flex min-h-0 flex-1 flex-col p-5">
+                    <h3 className="font-serif text-lg font-semibold text-charcoal">{product.name}</h3>
+                    <div className="mt-2 flex items-baseline justify-between gap-2">
+                      <p className="text-sm leading-snug text-charcoal/70">12 mangoes per box</p>
+                      <span className="shrink-0 font-serif text-xl font-bold text-saffron">
+                        {formatPrice(product.priceCents)}
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className={`mt-auto pt-4 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white pointer-events-none ${
+                        info.popular ? "btn-gold" : "bg-charcoal transition-colors group-hover:bg-charcoal-700"
+                      }`}
+                    >
+                      Order Now
+                      <svg className="w-3.5 h-3.5" aria-hidden="true">
+                        <use href="#i-arrow" />
+                      </svg>
                     </span>
                   </div>
-                  <Link
-                    href={`/shop/${product.slug}`}
-                    className={`mt-4 w-full inline-flex justify-center items-center gap-2 text-white text-sm font-semibold py-2.5 rounded-full cursor-pointer ${
-                      info.popular
-                        ? "btn-gold"
-                        : "bg-charcoal hover:bg-charcoal-700 transition-colors"
-                    }`}
-                  >
-                    Order Now
-                    <svg className="w-3.5 h-3.5" aria-hidden="true">
-                      <use href="#i-arrow" />
-                    </svg>
-                  </Link>
-                </div>
+                </Link>
               </motion.article>
             );
           })}

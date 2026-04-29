@@ -68,8 +68,11 @@ export default async function ShopPage({
               <h2 className="font-serif text-2xl sm:text-3xl text-charcoal mb-2">Understanding Mango Grades</h2>
               <p className="text-charcoal/60 text-sm sm:text-base">Choose the perfect grade for your needs</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gold-200/50 relative overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+              <Link
+                href={`/shop?q=${encodeURIComponent("Grade A1")}`}
+                className="group/grade relative flex h-full flex-col overflow-hidden rounded-2xl border border-gold-200/50 bg-white p-5 shadow-sm transition-all duration-200 hover:border-gold-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400/80 focus-visible:ring-offset-2"
+              >
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-gold-400/20 to-transparent rounded-bl-full" />
                 <div className="flex items-center gap-3 mb-3">
                   <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-gold-400 to-gold-500 text-white font-bold text-lg shadow-lg shadow-gold/30">
@@ -94,9 +97,12 @@ export default async function ShopPage({
                     <span>Show-piece quality</span>
                   </li>
                 </ul>
-              </div>
-              
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-cream-200 relative overflow-hidden">
+              </Link>
+
+              <Link
+                href={`/shop?q=${encodeURIComponent("Grade A2")}`}
+                className="group/grade relative flex h-full flex-col overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-saffron/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron/60 focus-visible:ring-offset-2"
+              >
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-saffron/20 to-transparent rounded-bl-full" />
                 <div className="flex items-center gap-3 mb-3">
                   <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-saffron to-gold-500 text-white font-bold text-lg shadow-lg shadow-saffron/30">
@@ -121,9 +127,12 @@ export default async function ShopPage({
                     <span>Best value for money</span>
                   </li>
                 </ul>
-              </div>
-              
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-cream-200 relative overflow-hidden">
+              </Link>
+
+              <Link
+                href={`/shop?q=${encodeURIComponent("Grade A3")}`}
+                className="group/grade relative flex h-full flex-col overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-leaf/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf/50 focus-visible:ring-offset-2"
+              >
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-leaf/20 to-transparent rounded-bl-full" />
                 <div className="flex items-center gap-3 mb-3">
                   <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-leaf to-leaf-600 text-white font-bold text-lg shadow-lg shadow-leaf/30">
@@ -148,7 +157,7 @@ export default async function ShopPage({
                     <span>Perfect for smoothies</span>
                   </li>
                 </ul>
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -200,17 +209,17 @@ export default async function ShopPage({
                   <Link
                     key={p.id}
                     href={`/shop/${p.slug}`}
-                    className="group bg-white rounded-3xl shadow-e1 hover:shadow-e3 transition-all duration-300 overflow-hidden hover:-translate-y-1 border border-cream-100/50"
+                    className="group flex flex-col h-full rounded-3xl bg-white shadow-e1 hover:shadow-e3 transition-all duration-300 overflow-hidden hover:-translate-y-1 border border-cream-100/50 outline-none focus-visible:ring-2 focus-visible:ring-gold-400/80 focus-visible:ring-offset-2"
                   >
                     {/* Image */}
-                    <div className="relative aspect-[4/3] bg-gradient-to-br from-cream-50 to-cream-100 overflow-hidden">
+                    <div className="relative aspect-[4/3] shrink-0 bg-gradient-to-br from-cream-50 to-cream-100 overflow-hidden">
                       {p.imageUrl ? (
                         <Image
                           src={p.imageUrl}
                           alt={p.name}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="pointer-events-none object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -221,10 +230,13 @@ export default async function ShopPage({
                       )}
                       
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
+
                       {/* Badges */}
-                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                      <div className="pointer-events-none absolute top-4 left-4 flex flex-wrap gap-2">
                         {grade && (
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white text-sm font-bold shadow-lg ${
                             grade === "A1" 
@@ -246,8 +258,8 @@ export default async function ShopPage({
                         )}
                       </div>
                       
-                      {/* Quick view button */}
-                      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                      {/* Quick view hint — decorative; whole card remains the link */}
+                      <div className="pointer-events-none absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                         <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/95 backdrop-blur-sm text-charcoal text-sm font-semibold shadow-lg">
                           View Details
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +270,7 @@ export default async function ShopPage({
                     </div>
                     
                     {/* Content */}
-                    <div className="p-6">
+                    <div className="flex min-h-0 flex-1 flex-col p-6">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div>
                           {p.variety && (
@@ -272,7 +284,7 @@ export default async function ShopPage({
                         </div>
                       </div>
                       
-                      <p className="text-sm text-charcoal/60 mb-4 line-clamp-2">
+                      <p className="mb-4 line-clamp-2 flex-1 text-sm text-charcoal/60">
                         {p.description || "Premium quality Alphonso mangoes, naturally ripened and hand-picked."}
                       </p>
                       

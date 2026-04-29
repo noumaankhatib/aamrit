@@ -620,16 +620,16 @@ export default async function ProductDetailPage({
                     <Link
                       key={r.id}
                       href={`/shop/${r.slug}`}
-                      className="group bg-white rounded-3xl shadow-e1 hover:shadow-e3 transition-all duration-300 overflow-hidden hover:-translate-y-1 border border-cream-100/50"
+                      className="group flex h-full flex-col rounded-3xl border border-cream-100/50 bg-white shadow-e1 outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-e3 overflow-hidden focus-visible:ring-2 focus-visible:ring-gold-400/80 focus-visible:ring-offset-2"
                     >
-                      <div className="relative aspect-square bg-gradient-to-br from-cream-50 to-cream-100 overflow-hidden">
+                      <div className="relative aspect-square shrink-0 bg-gradient-to-br from-cream-50 to-cream-100 overflow-hidden">
                         {r.imageUrl ? (
-                          <Image 
-                            src={r.imageUrl} 
-                            alt={r.name} 
-                            fill 
-                            sizes="33vw" 
-                            className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                          <Image
+                            src={r.imageUrl}
+                            alt={r.name}
+                            fill
+                            sizes="33vw"
+                            className="pointer-events-none object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-charcoal/20">
@@ -638,11 +638,14 @@ export default async function ProductDetailPage({
                             </svg>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+                        />
                         
                         {/* Grade badge on related products */}
                         {relatedGrade && relatedGradeInfo && (
-                          <div className="absolute top-4 left-4">
+                          <div className="pointer-events-none absolute top-4 left-4">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r ${relatedGradeInfo.color} text-white text-xs font-bold shadow-lg`}>
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -652,9 +655,9 @@ export default async function ProductDetailPage({
                           </div>
                         )}
                       </div>
-                      <div className="p-5">
+                      <div className="flex min-h-0 flex-1 flex-col p-5">
                         <p className="text-xs text-leaf font-semibold uppercase tracking-wider">{r.variety}</p>
-                        <h3 className="font-serif text-xl text-charcoal mt-1 group-hover:text-gold-700 transition-colors">{r.name}</h3>
+                        <h3 className="mt-1 font-serif text-xl text-charcoal transition-colors group-hover:text-gold-700">{r.name}</h3>
                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-cream-100">
                           <div>
                             <p className="text-xs text-charcoal/50">Per dozen</p>
