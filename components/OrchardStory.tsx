@@ -26,9 +26,9 @@ const STEPS: Step[] = [
       "Drip irrigation, no flooding",
       "Hand-pruning by farm team",
     ],
-    image:
-      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Mango tree flowering with panicles in orchard",
+    image: "/img/process/flowering-cultivation.png",
+    imageAlt:
+      "Mango trees in bloom with cream-colored flower panicles in a sunlit orchard row",
   },
   {
     number: "02",
