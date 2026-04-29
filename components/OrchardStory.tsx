@@ -41,9 +41,9 @@ const STEPS: Step[] = [
       "No machines, no bruising",
       "Sorted on the tree",
     ],
-    image:
-      "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Hands holding freshly hand-picked Alphonso mangoes",
+    image: "/img/process/handpicked-peak-maturity.png",
+    imageAlt:
+      "Hands harvesting a ripe mango from the tree beside a woven basket filled with fruit",
   },
   {
     number: "03",
@@ -56,9 +56,9 @@ const STEPS: Step[] = [
       "5–7 day slow ripening",
       "Daily hand-inspection",
     ],
-    image:
-      "https://images.unsplash.com/photo-1519096845289-95806ee03a1a?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Ripe golden mangoes arranged in traditional straw basket",
+    image: "/img/process/natural-straw-ripening.png",
+    imageAlt:
+      "Ripe mangoes layered in straw inside a rustic wooden crate with mango leaves",
   },
   {
     number: "04",
@@ -71,9 +71,9 @@ const STEPS: Step[] = [
       "MH 4-5 days · Others 8-9 days",
       "100% replacement guarantee",
     ],
-    image:
-      "https://images.unsplash.com/photo-1591073113125-e46713c829ed?auto=format&fit=crop&w=1600&q=85",
-    imageAlt: "Fresh mangoes ready for delivery to your doorstep",
+    image: "/img/process/delivered-farm-fresh.png",
+    imageAlt:
+      "Packed mangoes in straw-lined boxes on an outdoor wooden table with farm gift packaging",
   },
 ];
 

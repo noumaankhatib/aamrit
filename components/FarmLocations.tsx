@@ -5,14 +5,27 @@ import { motion } from "framer-motion";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import CountUp from "./CountUp";
 
-const DISTRICTS = [
+type District = {
+  key: string;
+  label: string;
+  tagline: string;
+  trees: number;
+  acres: number;
+  image: string;
+  imageAlt?: string;
+  features: string[];
+};
+
+const DISTRICTS: District[] = [
   {
     key: "ratnagiri",
     label: "Ratnagiri",
     tagline: "The Original Home of Alphonso",
     trees: 6800,
     acres: 150,
-    image: "https://images.unsplash.com/photo-1605027990121-cbae9e0642df?auto=format&fit=crop&w=800&q=85",
+    image: "/img/farms/ratnagiri-original-home-alphonso.png",
+    imageAlt:
+      "Alphonso mangoes ripening on trees in hillside rows overlooking the Konkan coast",
     features: ["GI-Tag Certified", "Sea Breeze Climate"],
   },
   {
@@ -21,7 +34,9 @@ const DISTRICTS = [
     tagline: "Our Largest Estate",
     trees: 8400,
     acres: 252,
-    image: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=85",
+    image: "/img/farms/raigad-largest-estate.png",
+    imageAlt:
+      "Mango trees on a hillside with ripening fruit, valley and mountain range in the distance",
     features: ["Sahyadri Foothills", "Estate Cultivation"],
   },
 ];
@@ -110,7 +125,7 @@ export default function FarmLocations() {
               <div className="relative h-48 sm:h-56 overflow-hidden">
                 <Image
                   src={district.image}
-                  alt={district.label}
+                  alt={district.imageAlt ?? district.label}
                   fill
                   sizes="(max-width: 640px) 100vw, 50vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
