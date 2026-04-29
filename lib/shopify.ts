@@ -63,15 +63,18 @@ interface ShopifyResponse<T> {
 async function shopifyFetch<T>(
   query: string,
   variables: Record<string, unknown> = {},
-  options: { cache?: RequestCache; revalidate?: number } = {}
+  options: { cache?: RequestCache; revalidate?: number; timeout?: number } = {}
 ): Promise<T> {
-  const { cache, revalidate } = options;
+  const { cache, revalidate, timeout = 10000 } = options;
 
   if (!SHOPIFY_DOMAIN || !STOREFRONT_TOKEN) {
     throw new Error(
       "Shopify credentials not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN."
     );
   }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   const fetchOptions: RequestInit = {
     method: "POST",
@@ -80,6 +83,7 @@ async function shopifyFetch<T>(
       "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
     },
     body: JSON.stringify({ query, variables }),
+    signal: controller.signal,
   };
 
   if (cache) {
@@ -90,7 +94,18 @@ async function shopifyFetch<T>(
     (fetchOptions as any).next = { revalidate };
   }
 
-  const response = await fetch(STOREFRONT_API_URL, fetchOptions);
+  let response: Response;
+  try {
+    response = await fetch(STOREFRONT_API_URL, fetchOptions);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`Shopify API request timed out after ${timeout}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);

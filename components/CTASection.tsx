@@ -29,6 +29,7 @@ export default function CTASection() {
           src="https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80"
           alt=""
           fill
+          sizes="160px"
           className="object-cover rounded-full"
         />
       </motion.div>
@@ -46,6 +47,7 @@ export default function CTASection() {
           src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?auto=format&fit=crop&w=300&q=80"
           alt=""
           fill
+          sizes="128px"
           className="object-cover rounded-full"
         />
       </motion.div>
@@ -64,6 +66,7 @@ export default function CTASection() {
           src="https://images.unsplash.com/photo-1591073113125-e46713c829ed?auto=format&fit=crop&w=300&q=80"
           alt=""
           fill
+          sizes="176px"
           className="object-cover rounded-full"
         />
       </motion.div>
@@ -81,6 +84,7 @@ export default function CTASection() {
           src="https://images.unsplash.com/photo-1519096845289-95806ee03a1a?auto=format&fit=crop&w=300&q=80"
           alt=""
           fill
+          sizes="112px"
           className="object-cover rounded-full"
         />
       </motion.div>

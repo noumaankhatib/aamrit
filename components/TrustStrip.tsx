@@ -21,20 +21,20 @@ export default function TrustStrip() {
           whileInView="show"
           viewport={viewportOnce}
           variants={staggerContainer(0.06)}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-4 gap-x-2 lg:gap-x-4 text-charcoal/70 text-xs sm:text-sm font-medium"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-3 xs:gap-y-4 gap-x-2 sm:gap-x-3 lg:gap-x-4 text-charcoal/70 text-[11px] xs:text-xs sm:text-sm font-medium"
         >
           {ITEMS.map((item) => (
             <motion.li
               key={item.label}
               variants={fadeUp}
-              className="flex items-center gap-2.5"
+              className="flex items-center gap-2 xs:gap-2.5"
             >
-              <span className="w-7 h-7 rounded-full grad-gold inline-flex items-center justify-center text-white shadow-e1">
-                <svg className="w-3.5 h-3.5" aria-hidden="true">
+              <span className="w-6 h-6 xs:w-7 xs:h-7 rounded-full grad-gold inline-flex items-center justify-center text-white shadow-e1 shrink-0">
+                <svg className="w-3 h-3 xs:w-3.5 xs:h-3.5" aria-hidden="true">
                   <use href={`#${item.icon}`} />
                 </svg>
               </span>
-              {item.label}
+              <span className="leading-tight">{item.label}</span>
             </motion.li>
           ))}
         </motion.ul>

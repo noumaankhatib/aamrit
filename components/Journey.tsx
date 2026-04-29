@@ -50,14 +50,14 @@ export default function Journey() {
           whileInView="show"
           viewport={viewportOnce}
           variants={fadeUp}
-          className="text-center max-w-3xl mx-auto"
+          className="text-center max-w-3xl mx-auto px-2 sm:px-0"
         >
-          <span className="gold-rule">Our Journey</span>
-          <h2 className="mt-4 font-serif text-4xl sm:text-5xl text-charcoal leading-[1.05]">
+          <span className="gold-rule text-[10px] xs:text-[11px] sm:text-xs">Our Journey</span>
+          <h2 className="mt-3 sm:mt-4 font-serif text-2xl xs:text-3xl sm:text-4xl lg:text-5xl text-charcoal leading-[1.1] sm:leading-[1.05]">
             From a small family farm to{" "}
             <span className="grad-text-static font-semibold">10 villages.</span>
           </h2>
-          <p className="mt-4 text-charcoal/70 text-base sm:text-lg leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-charcoal/70 text-sm sm:text-base lg:text-lg leading-relaxed">
             Seventeen years, ten farms, two districts. The standards never changed.
           </p>
         </motion.div>

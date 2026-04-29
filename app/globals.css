@@ -192,18 +192,42 @@ p {
 .gold-rule {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
+  gap: 0.4rem;
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--saffron);
+}
+@media (min-width: 640px) {
+  .gold-rule {
+    gap: 0.5rem;
+    letter-spacing: 0.18em;
+  }
+}
+@media (min-width: 1024px) {
+  .gold-rule {
+    gap: 0.6rem;
+  }
 }
 .gold-rule::before,
 .gold-rule::after {
   content: "";
-  width: 24px;
+  width: 16px;
   height: 1px;
   background: linear-gradient(90deg, transparent, #f4a300 50%, transparent);
+}
+@media (min-width: 640px) {
+  .gold-rule::before,
+  .gold-rule::after {
+    width: 20px;
+  }
+}
+@media (min-width: 1024px) {
+  .gold-rule::before,
+  .gold-rule::after {
+    width: 24px;
+  }
 }
 .gold-rule.left::before {
   display: none;

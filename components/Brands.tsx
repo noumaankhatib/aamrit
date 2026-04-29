@@ -324,7 +324,7 @@ export default function Brands() {
           whileInView="show"
           viewport={viewportOnce}
           variants={staggerContainer(0.1)}
-          className="mt-14 grid grid-cols-2 lg:grid-cols-5 gap-5"
+          className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5"
         >
           {BRANDS.map((b) => (
             <motion.div
@@ -332,17 +332,17 @@ export default function Brands() {
               variants={fadeUp}
               whileHover={{ y: -6, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className={`relative bg-white rounded-3xl border-2 p-7 flex flex-col items-center text-center shadow-e1 hover:shadow-e3 transition-shadow ${
+              className={`relative bg-white rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-5 lg:p-7 flex flex-col items-center text-center shadow-e1 hover:shadow-e3 transition-shadow ${
                 b.key === "aamrit" ? "border-gold ring-2 ring-gold/30" : "border-gold/40"
               }`}
             >
               {b.badge && (
-                <span className="absolute -top-3 right-5 px-3 py-1 rounded-full ribbon text-white text-[10px] font-bold tracking-wider uppercase shadow-e1">
+                <span className="absolute -top-2 sm:-top-3 right-3 sm:right-5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full ribbon text-white text-[8px] sm:text-[10px] font-bold tracking-wider uppercase shadow-e1">
                   {b.badge}
                 </span>
               )}
-              <div className="min-h-[140px] flex items-center justify-center">{b.logo}</div>
-              <p className="mt-4 text-charcoal/60 text-xs tracking-wide">{b.tag}</p>
+              <div className="min-h-[100px] sm:min-h-[120px] lg:min-h-[140px] flex items-center justify-center">{b.logo}</div>
+              <p className="mt-2 sm:mt-3 lg:mt-4 text-charcoal/60 text-[10px] sm:text-xs tracking-wide">{b.tag}</p>
             </motion.div>
           ))}
         </motion.div>

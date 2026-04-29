@@ -106,12 +106,12 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-white/55">
+        <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm text-white/55 text-center sm:text-left">
           <p>
-            © {year} Yeskay Mango Farms Pvt. Ltd. · Founder: Sarfaraz Kazi · CIN:
-            U01100MH2008XXXXX
+            © {year} Yeskay Mango Farms Pvt. Ltd.
+            <span className="hidden xs:inline"> · Founder: Sarfaraz Kazi</span>
           </p>
-          <p className="text-xs">
+          <p className="text-[10px] sm:text-xs">
             Aamrit · Ratnagiri Gold · Raigad Gold · Mango Basket · Westmango
           </p>
         </div>
