@@ -487,9 +487,12 @@ export async function getCategories(): Promise<ShopifyCategory[]> {
 // ============================================================================
 
 export async function createCart(): Promise<ShopifyCart | null> {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const returnUrl = `${appUrl.replace(/\/$/, "")}/orders/success`;
+  
   const query = `
-    mutation CreateCart {
-      cartCreate {
+    mutation CreateCart($input: CartInput) {
+      cartCreate(input: $input) {
         cart {
           ...CartFields
         }
@@ -503,7 +506,17 @@ export async function createCart(): Promise<ShopifyCart | null> {
   `;
 
   try {
-    const data = await shopifyFetch<any>(query, {}, { cache: "no-store" });
+    const data = await shopifyFetch<any>(
+      query, 
+      { 
+        input: {
+          attributes: [
+            { key: "_return_url", value: returnUrl }
+          ]
+        }
+      }, 
+      { cache: "no-store" }
+    );
 
     if (data.cartCreate?.userErrors?.length) {
       console.error("Cart creation errors:", data.cartCreate.userErrors);

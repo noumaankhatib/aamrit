@@ -216,21 +216,21 @@ export default function OrchardStory() {
         }}
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-        <div className="text-center max-w-3xl mx-auto">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
+        <div className="text-center max-w-3xl mx-auto px-2 sm:px-0">
           <span className="gold-rule">Our Process</span>
-          <h2 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl text-charcoal leading-[1.05]">
+          <h2 className="mt-3 sm:mt-4 font-serif text-3xl sm:text-4xl lg:text-6xl text-charcoal leading-[1.1] sm:leading-[1.05]">
             From flowering to your kitchen,{" "}
             <em className="grad-text-static not-italic">by hand.</em>
           </h2>
-          <p className="mt-5 text-charcoal/75 text-lg leading-relaxed">
+          <p className="mt-4 sm:mt-5 text-charcoal/75 text-base sm:text-lg leading-relaxed">
             Four steps. Done the slow way. Three generations of Konkani know-how — every
             mango can be traced back to the exact tree it grew on.
           </p>
         </div>
 
         {/* Vertical spine + alternating rows */}
-        <div className="story-spine relative mt-20">
+        <div className="story-spine relative mt-12 sm:mt-20">
           {/* Center line — desktop only */}
           <div
             aria-hidden="true"
@@ -246,22 +246,22 @@ export default function OrchardStory() {
             style={{ transformOrigin: "top center" }}
           />
 
-          <ol className="space-y-16 lg:space-y-28">
+          <ol className="space-y-12 sm:space-y-16 lg:space-y-28">
             {STEPS.map((step, i) => {
               const reverse = i % 2 === 1;
               return (
                 <li
                   key={step.number}
-                  className={`story-row relative grid lg:grid-cols-2 gap-8 lg:gap-16 items-center ${
+                  className={`story-row relative grid lg:grid-cols-2 gap-5 sm:gap-8 lg:gap-16 items-center ${
                     reverse ? "lg:[direction:rtl]" : ""
                   }`}
                 >
                   {/* Photo */}
                   <div
                     className="story-image relative card-edge overflow-hidden lg:[direction:ltr] group"
-                    style={{ borderRadius: "1.75rem" }}
+                    style={{ borderRadius: "1.25rem" }}
                   >
-                    <div className="relative h-72 sm:h-96 lg:h-[28rem] overflow-hidden">
+                    <div className="relative h-64 sm:h-80 lg:h-[28rem] overflow-hidden rounded-2xl sm:rounded-3xl">
                       <Image
                         src={step.image}
                         alt={step.imageAlt}
@@ -272,49 +272,49 @@ export default function OrchardStory() {
                       {/* Bottom warm gradient for chip legibility */}
                       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-                      {/* Big step number — bottom-left corner of photo */}
+                      {/* Big step number — positioned inside photo on mobile */}
                       <span
-                        className="story-step-num absolute -top-3 -left-3 lg:top-5 lg:left-5 inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 rounded-full grad-gold-rich text-white font-serif text-2xl lg:text-3xl font-semibold shadow-glow ring-4 ring-white"
+                        className="story-step-num absolute top-3 left-3 sm:top-4 sm:left-4 lg:top-5 lg:left-5 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20 rounded-full grad-gold-rich text-white font-serif text-xl sm:text-2xl lg:text-3xl font-semibold shadow-glow ring-2 sm:ring-4 ring-white"
                       >
                         {step.number}
                       </span>
 
                       {/* Season chip — bottom-left of photo */}
-                      <span className="absolute bottom-5 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur text-charcoal text-[11px] font-semibold tracking-wider uppercase shadow-e1">
-                        <svg className="w-3.5 h-3.5 text-saffron" aria-hidden="true">
+                      <span className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur text-charcoal text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase shadow-e1">
+                        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-saffron" aria-hidden="true">
                           <use href="#i-sun" />
                         </svg>
                         {step.season}
                       </span>
 
                       {/* Pull-quote tag — top-right */}
-                      <span className="absolute top-5 right-5 px-3 py-1.5 rounded-full grad-leaf text-white text-[10px] font-bold tracking-[0.18em] uppercase shadow-e1">
+                      <span className="absolute top-3 right-3 sm:top-5 sm:right-5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full grad-leaf text-white text-[9px] sm:text-[10px] font-bold tracking-[0.15em] sm:tracking-[0.18em] uppercase shadow-e1">
                         {step.tag}
                       </span>
                     </div>
                   </div>
 
                   {/* Copy */}
-                  <div className="story-copy lg:[direction:ltr]">
-                    <p className="text-saffron text-[11px] font-semibold uppercase tracking-[0.3em]">
+                  <div className="story-copy lg:[direction:ltr] px-1 sm:px-0">
+                    <p className="text-saffron text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] sm:tracking-[0.3em]">
                       Step {step.number}
                     </p>
-                    <h3 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal leading-[1.1]">
+                    <h3 className="mt-2 sm:mt-3 font-serif text-2xl sm:text-3xl lg:text-5xl text-charcoal leading-[1.15] sm:leading-[1.1]">
                       {step.title}
                     </h3>
-                    <p className="mt-5 text-charcoal/75 text-base sm:text-lg leading-relaxed">
+                    <p className="mt-3 sm:mt-5 text-charcoal/75 text-sm sm:text-base lg:text-lg leading-relaxed">
                       {step.body}
                     </p>
 
                     {/* Craft bullets */}
-                    <ul className="mt-6 space-y-2.5">
+                    <ul className="mt-4 sm:mt-6 space-y-2 sm:space-y-2.5">
                       {step.bullets.map((b) => (
                         <li
                           key={b}
-                          className="flex items-center gap-3 text-charcoal/85 text-sm sm:text-base"
+                          className="flex items-center gap-2.5 sm:gap-3 text-charcoal/85 text-xs sm:text-sm lg:text-base"
                         >
-                          <span className="w-7 h-7 rounded-full grad-gold-rich inline-flex items-center justify-center text-white shrink-0 shadow-e1">
-                            <svg className="w-3.5 h-3.5" aria-hidden="true">
+                          <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full grad-gold-rich inline-flex items-center justify-center text-white shrink-0 shadow-e1">
+                            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true">
                               <use href="#i-check" />
                             </svg>
                           </span>
