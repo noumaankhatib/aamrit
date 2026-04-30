@@ -3,7 +3,21 @@
 import { motion } from "framer-motion";
 import { fadeUp, staggerContainer, viewportOnce, easing } from "@/lib/animations";
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** Agronomic crop year: flowering in late monsoon → harvest spring/summer — reads left to right contiguously */
+const MONTHS = [
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+];
 
 type Row = {
   label: string;
@@ -21,27 +35,27 @@ type Row = {
 const ROWS: Row[] = [
   {
     label: "Flowering",
-    caption: "Panicles & first blossom",
+    caption: "From September — panicles & blossom",
     start: 1,
-    span: 2,
+    span: 3,
     icon: "i-leaf",
     background: "linear-gradient(90deg, #a3d4a6 0%, #6FBF73 100%)",
     textClass: "text-leaf-800",
   },
   {
     label: "Fruiting",
-    caption: "Green fruit set",
-    start: 2,
-    span: 2,
+    caption: "From December — green fruit set",
+    start: 4,
+    span: 3,
     icon: "i-tree",
     background: "linear-gradient(90deg, #3a9c40 0%, #2E7D32 100%)",
     textClass: "text-white",
   },
   {
     label: "Harvest · Handpicked",
-    caption: "Peak Alphonso season",
-    start: 3,
-    span: 3,
+    caption: "From March — peak Alphonso season",
+    start: 7,
+    span: 4,
     icon: "i-mango",
     background:
       "linear-gradient(90deg, #FFD773 0%, #F4A300 50%, #E07A00 100%)",
@@ -52,7 +66,7 @@ const ROWS: Row[] = [
   {
     label: "Free Delivery",
     caption: "MH 4-5 days · Others 8-9 days",
-    start: 3,
+    start: 7,
     span: 4,
     icon: "i-truck",
     background: "linear-gradient(90deg, #E07A00 0%, #B86200 100%)",
@@ -61,8 +75,8 @@ const ROWS: Row[] = [
   {
     label: "Off-season",
     caption: "Tree care & pruning",
-    start: 7,
-    span: 6,
+    start: 11,
+    span: 2,
     icon: "i-clipboard",
     background:
       "linear-gradient(90deg, #FCEBC2 0%, #FFF4E5 100%)",
@@ -75,13 +89,15 @@ const HIGHLIGHTS = [
     icon: "i-clipboard",
     title: "Pre-orders open",
     body: "1 March every year",
-    accent: "Reserve early — most years sell out by April.",
+    accent:
+      "Delivery begins from 20 March onwards. Reserve early — most years sell out by April.",
   },
   {
     icon: "i-truck",
-    title: "Free Delivery",
-    body: "All over India",
-    accent: "Maharashtra 4-5 days · Other States 8-9 days.",
+    title: "Delivery begins",
+    body: "From 20 March",
+    accent:
+      "Free across India — Maharashtra 4-5 days · other states 8-9 days.",
   },
   {
     icon: "i-mango",
@@ -92,8 +108,8 @@ const HIGHLIGHTS = [
 ];
 
 export default function HarvestCalendar() {
-  // 0-indexed: April = 3, used to highlight the current peak month visually
-  const peakMonthIndex = 3;
+  // 0-indexed month in crop-year row (Sep=0 … Aug=11); April (peak) = 7
+  const peakMonthIndex = 7;
 
   return (
     <section
@@ -142,8 +158,13 @@ export default function HarvestCalendar() {
             season.
           </h2>
           <p className="mt-5 text-charcoal/70 text-base sm:text-lg leading-relaxed">
-            Alphonso is a once-a-year fruit. Pre-orders open in March; deliveries run from
-            late March to early June.
+            Our orchards follow a clear rhythm:{" "}
+            <span className="text-charcoal font-medium">flowering from September</span>,{" "}
+            <span className="text-charcoal font-medium">fruiting from December</span>, and{" "}
+            <span className="text-charcoal font-medium">harvesting from March</span>. Calendar
+            shown as the crop year (September through August). Pre-orders open{" "}
+            <span className="text-charcoal font-medium">1 March</span>; deliveries begin from{" "}
+            <span className="text-charcoal font-medium">20 March</span> through early June.
           </p>
 
           {/* Decorative flourish */}

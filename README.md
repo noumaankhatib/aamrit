@@ -1,6 +1,6 @@
 # Aamrit — Premium Mango Pulp eCommerce (Shopify Headless)
 
-Full-stack Next.js storefront for **Aamrit**, a premium mango pulp brand by Yeskay Mango Farms Pvt. Ltd. — family-grown across 10 farms in Ratnagiri & Raigad since 2008.
+Full-stack Next.js storefront for **Aamrit**, a premium mango pulp brand by Yeskay Mango Farms Pvt. Ltd. — family-grown across 12 farms and 600+ acres in Ratnagiri & Raigad, established 1985 (22,000+ trees).
 
 This is a **headless Shopify** implementation where the frontend is built with Next.js and all product, cart, and checkout data comes from the Shopify Storefront API.
 

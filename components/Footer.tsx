@@ -19,7 +19,7 @@ export default function Footer() {
             <p className="mt-5 text-white/70 max-w-md leading-relaxed">
               A premium Alphonso mango brand by{" "}
               <span className="text-white font-medium">Yeskay Mango Farms Pvt. Ltd.</span> —
-              family-grown across 10 farms in Ratnagiri &amp; Raigad since 2008.
+              family-grown across 12 farms in Ratnagiri &amp; Raigad — growing since generations, established 1985.
             </p>
             <p className="mt-4 text-white/55 text-sm italic font-serif">
               &ldquo;Aam · Amrit — the divine nectar of mango.&rdquo;

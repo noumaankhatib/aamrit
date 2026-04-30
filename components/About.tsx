@@ -52,13 +52,13 @@ export default function About() {
           </h2>
           <p className="mt-4 text-charcoal/70 text-base sm:text-lg leading-relaxed">
             One of Maharashtra&apos;s largest producers of Alphonso mangoes — committed to
-            quality and sustainability since 2008.
+            quality and sustainability since 1985.
           </p>
         </motion.div>
 
         {/* ─── Brochure-style 2-column body ─── */}
         <div className="mt-10 lg:mt-12 grid lg:grid-cols-12 gap-6 lg:gap-12 items-start">
-          {/* ═══ LEFT: prose + founder card ═══ */}
+          {/* ═══ LEFT: prose ═══ */}
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -103,7 +103,7 @@ export default function About() {
                   >
                     F
                   </span>
-                  ounded in 2008, we&apos;ve grown from a small family farm into a leading
+                  ounded in 1985, we&apos;ve grown from a small family farm into a leading
                   name in the Alphonso mango industry — leveraging western Maharashtra&apos;s
                   ideal climate and red soil, and combining time-honored techniques with
                   modern, sustainable practices.
@@ -113,60 +113,6 @@ export default function About() {
                   — through direct sales, partnerships, or export. Every fruit is hand-picked,
                   naturally ripened, and traceable to the tree it grew on.
                 </p>
-              </div>
-            </motion.div>
-
-            {/* Founder sign-off card */}
-            <motion.div
-              variants={fadeUp}
-              className="mt-5 relative rounded-2xl bg-gradient-to-br from-cream-50 via-white to-cream-100 border border-gold/30 shadow-soft p-5 overflow-hidden"
-            >
-              <span className="absolute top-0 inset-x-12 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
-              <svg
-                aria-hidden="true"
-                className="absolute -right-4 -bottom-4 w-24 h-24 text-leaf/10 rotate-12 pointer-events-none"
-              >
-                <use href="#i-leaf" />
-              </svg>
-
-              <div className="relative flex items-center gap-4">
-                {/* Monogram disc */}
-                <div className="relative shrink-0">
-                  <span className="absolute inset-0 rounded-full bg-gold/30 blur-md scale-110" />
-                  <span className="relative inline-flex items-center justify-center w-14 h-14 rounded-full grad-gold-rich text-white shadow-glow ring-4 ring-white">
-                    <span className="font-serif text-xl font-bold tracking-tight">SK</span>
-                  </span>
-                </div>
-
-                {/* Signature */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-saffron text-[10px] font-bold uppercase tracking-[0.3em]">
-                    From our founder
-                  </p>
-                  <p
-                    className="mt-0.5 font-serif italic text-2xl sm:text-3xl text-charcoal tracking-tight leading-none"
-                    style={{ letterSpacing: "-0.01em" }}
-                  >
-                    Sarfaraz Kazi
-                  </p>
-                  <p className="mt-1.5 inline-flex items-center gap-1.5 text-charcoal/65 text-xs">
-                    <svg className="w-3 h-3 text-leaf-700" aria-hidden="true">
-                      <use href="#i-pin" />
-                    </svg>
-                    Ratnagiri, Maharashtra · Est. 2008
-                  </p>
-                </div>
-
-                {/* WhatsApp action */}
-                <a
-                  href="https://wa.me/919999999999?text=Hi%20Sarfaraz%2C%20I%27d%20like%20to%20know%20more%20about%20Aamrit%20mangoes."
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-leaf hover:bg-leaf-600 text-white text-[11px] font-semibold tracking-wide transition-all duration-200 hover:scale-[1.04] cursor-pointer shadow-e1 shrink-0"
-                >
-                  <svg className="w-3.5 h-3.5" aria-hidden="true">
-                    <use href="#i-whatsapp" />
-                  </svg>
-                  Message
-                </a>
               </div>
             </motion.div>
           </motion.div>
@@ -282,17 +228,6 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Floating "100% Satisfaction" seal */}
-              <div className="hidden sm:flex absolute -top-5 -right-5 z-10 w-24 h-24 rounded-full grad-gold-rich items-center justify-center text-white text-center font-serif transform -rotate-12 ring-[6px] ring-white shadow-glow">
-                <div className="leading-tight">
-                  <div className="text-xl font-bold leading-none">100%</div>
-                  <div className="text-[8px] uppercase tracking-[0.16em] mt-1 font-semibold">
-                    Satisfaction
-                    <br />
-                    Guaranteed
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>

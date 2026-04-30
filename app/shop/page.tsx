@@ -57,7 +57,7 @@ export default async function ShopPage({
               <span className="grad-text-static">straight from the tree</span>
             </h1>
             <p className="mt-5 text-charcoal/70 text-lg leading-relaxed">
-              Naturally ripened on our 70-year-old family orchards across Ratnagiri
+              Naturally ripened on our multi-generational family orchards across Ratnagiri
               & Raigad. No artificial ripening. No middlemen. Delivered fresh — free across India (Maharashtra typically 4–5 days; other states 8–9 days).
             </p>
           </header>
@@ -86,7 +86,7 @@ export default async function ShopPage({
                 <ul className="space-y-1.5 text-sm text-charcoal/70">
                   <li className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                    <span>Largest size (250-350g)</span>
+                    <span>Largest size (250-305g)</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>

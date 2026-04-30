@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 
 const ITEMS = [
-  { icon: "i-medal", label: "17+ years of mango farming" },
+  { icon: "i-medal", label: "40+ years of mango farming" },
+  { icon: "i-leaf", label: "Sustainability since 1985" },
   { icon: "i-tree", label: "Direct from owned farms" },
   { icon: "i-shield", label: "100% no-carbide promise" },
   { icon: "i-truck", label: "Free delivery all over India" },
-  { icon: "i-globe", label: "Export-ready (Westmango)" },
   { icon: "i-heart", label: "100% satisfaction guarantee" },
 ];
 

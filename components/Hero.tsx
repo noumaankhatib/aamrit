@@ -92,7 +92,7 @@ export default function Hero() {
       <div className="absolute top-[15%] right-[10%] w-72 h-72 rounded-full bg-gold/30 blur-3xl pointer-events-none" />
 
       {/* Content — single-viewport flex layout, no scroll required */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-[100svh] flex flex-col justify-center pt-24 pb-16 sm:pt-28 lg:pt-32 lg:pb-20">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-[100svh] flex flex-col justify-center pt-24 pb-32 sm:pt-28 sm:pb-36 lg:pt-32 lg:pb-40">
         <motion.div
           className="max-w-3xl"
           initial="hidden"
@@ -108,7 +108,7 @@ export default function Hero() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-gold animate-ping opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
             </span>
-            Yeskay Mango Farms · Family-grown since 2008
+            Yeskay mango farms : growing since generations
           </motion.div>
 
           {/* Headline — sized to fit viewport, line-stagger, deep drop shadow */}
@@ -136,35 +136,17 @@ export default function Hero() {
             animate="show"
             variants={staggerContainer(0.12, 0.6)}
           >
-            <motion.div
-              variants={heroExtra}
-              className="mt-3 sm:mt-4 inline-flex items-center gap-3 text-white"
-            >
-              <span className="h-px w-8 bg-gold" />
-              <svg className="w-3.5 h-3.5 text-gold drop-shadow" aria-hidden="true">
-                <use href="#i-leaf" />
-              </svg>
-              <span className="text-[10px] tracking-[0.4em] text-gold-200">
-                EST · 2008 · KONKAN
-              </span>
-              <svg
-                className="w-3.5 h-3.5 text-gold scale-x-[-1] drop-shadow"
-                aria-hidden="true"
-              >
-                <use href="#i-leaf" />
-              </svg>
-              <span className="h-px w-8 bg-gold" />
-            </motion.div>
-
             <motion.p
               variants={heroExtra}
               className="mt-3 sm:mt-4 max-w-xl text-white text-base sm:text-lg leading-relaxed font-normal"
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.55)" }}
             >
-              From{" "}
-              <span className="font-semibold text-gold-200">10 owned farms</span>{" "}
-              across Ratnagiri & Raigad — handpicked, naturally ripened, and
-              delivered straight to your home.
+              From our farms across{" "}
+              <span className="font-semibold text-gold-200">
+                Ratnagiri &amp; Raigad
+              </span>{" "}
+              — handpicked, naturally ripened, and delivered straight to your
+              home.
             </motion.p>
 
             <motion.div
@@ -200,10 +182,10 @@ export default function Hero() {
             className="mt-7 sm:mt-9 grid grid-cols-4 gap-3 sm:gap-6 max-w-2xl"
           >
             {[
-              { label: "Established", value: 2008, suffix: "" },
-              { label: "Acres", value: 402, suffix: "+" },
-              { label: "Mango Trees", value: 15200, suffix: "+" },
-              { label: "Villages", value: 10, suffix: "" },
+              { label: "Established", value: 1985, suffix: "" },
+              { label: "Farms", value: 12, suffix: "" },
+              { label: "Acres", value: 600, suffix: "+" },
+              { label: "Mango Trees", value: 22000, suffix: "+" },
             ].map((stat) => (
               <div key={stat.label} className="relative pl-3 sm:pl-4">
                 <span className="absolute left-0 top-1 bottom-1 w-px bg-gradient-to-b from-transparent via-gold to-transparent" />
@@ -218,11 +200,11 @@ export default function Hero() {
                   }}
                 >
                   <CountUp
-                    to={
-                      stat.label === "Established" ? 2008 : stat.value
-                    }
+                    to={stat.value}
                     format={(n) =>
-                      stat.label === "Established" ? String(n) : n >= 1000 ? n.toLocaleString("en-IN") : String(n)
+                      n >= 1000
+                        ? n.toLocaleString("en-IN")
+                        : String(n)
                     }
                   />
                   {stat.suffix && <span className="text-gold">{stat.suffix}</span>}
@@ -233,14 +215,14 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator — only shown on tall viewports to keep content unscrolled-visible */}
+      {/* Scroll indicator — positioned above wave divider */}
       <a
         href="#trust-strip"
         aria-label="Scroll"
-        className="hidden 2xl:flex absolute z-10 left-1/2 -translate-x-1/2 bottom-6 flex-col items-center gap-2 text-white/80 hover:text-white transition-colors"
+        className="absolute z-10 left-1/2 -translate-x-1/2 bottom-[2.5rem] sm:bottom-[3rem] lg:bottom-[3.5rem] flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors"
       >
-        <span className="text-[10px] tracking-[0.32em] uppercase">Scroll</span>
-        <span className="w-[2px] h-10 bg-white/25 relative overflow-hidden rounded-full">
+        <span className="text-[9px] sm:text-[10px] tracking-[0.32em] uppercase">Scroll</span>
+        <span className="w-[2px] h-6 sm:h-8 bg-white/25 relative overflow-hidden rounded-full">
           <span className="absolute top-0 left-0 w-full h-1/3 bg-gold animate-drip" />
         </span>
       </a>

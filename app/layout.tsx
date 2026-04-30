@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   title:
     "Aamrit — Premium Alphonso Mangoes from our farms in Ratnagiri & Raigad | Yeskay Mango Farms",
   description:
-    "Direct from 402+ acres and 15,000+ trees across Ratnagiri & Raigad — naturally ripened, hand-picked Alphonso mangoes. Family-grown by Yeskay Mango Farms since 2008.",
+    "Direct from 600+ acres and 22,000+ trees across 12 family farms in Ratnagiri & Raigad — naturally ripened, hand-picked Alphonso mangoes. Yeskay Mango Farms — growing since generations, established 1985.",
   openGraph: {
     title: "Aamrit — Rooted in Nature, Ripened to Perfection",
     description:
-      "Premium Alphonso mangoes from our owned orchards in Ratnagiri & Raigad. Since 2008.",
+      "Premium Alphonso mangoes from our owned orchards in Ratnagiri & Raigad. Established 1985.",
   },
 };
 

@@ -11,15 +11,11 @@ const ITEMS = [
   },
   {
     q: "How do I know your mangoes are really naturally ripened?",
-    a: "Three things: (1) we own every farm — there's no point in our chain where a middleman could swap fruit; (2) you can visit any of our 10 plots in Ratnagiri or Raigad at any time during the season; (3) artificially ripened Alphonso looks uniformly yellow with no aroma — ours ripen unevenly with a strong floral smell, which is the natural sign.",
+    a: "Three things: (1) we own every farm — there's no point in our chain where a middleman could swap fruit; (2) you can visit any of our 12 farms in Ratnagiri or Raigad at any time during the season; (3) artificially ripened Alphonso looks uniformly yellow with no aroma — ours ripen unevenly with a strong floral smell, which is the natural sign.",
   },
   {
     q: "When is the season and how do I pre-order?",
-    a: "Alphonso is a once-a-year fruit. Pre-orders open every March; deliveries run from late March through early June, with peak fruit between mid-April and mid-May. Reserve early — we sell out most years by April.",
-  },
-  {
-    q: "What if my mangoes arrive damaged?",
-    a: "100% replacement, no questions asked. WhatsApp us a photo soon after unpacking if anything arrives damaged or below grade — we'll dispatch a fresh crate at our cost. Our 100% Satisfaction Guarantee has been part of how we do business since 2008.",
+    a: "Alphonso is a once-a-year fruit. Pre-orders open on 1 March; deliveries begin from 20 March through early June, with peak fruit between mid-April and mid-May. Reserve early — we sell out most years by April.",
   },
   {
     q: "Why is your Alphonso pricier than what I see in local markets?",

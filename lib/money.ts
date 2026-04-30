@@ -8,7 +8,7 @@ export function formatWeight(grams: number) {
 
 /** Typical per-mango ranges by Alphonso grade (A1–A3 sold by the dozen). */
 const GRADE_WEIGHT_PER_PC_DISPLAY: Record<string, string> = {
-  A1: "250-350 g/pc",
+  A1: "250-305 g/pc",
   A2: "200-250 g/pc",
   A3: "150-200 g/pc",
 };

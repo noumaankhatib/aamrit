@@ -37,7 +37,7 @@ export default function B2BSection() {
             <span className="grad-text">gifting partners.</span>
           </h2>
           <p className="mt-5 text-white/75 text-lg leading-relaxed">
-            15,000+ trees across 402+ acres means we can supply at scale — without losing
+            22,000+ trees across 600+ acres means we can supply at scale — without losing
             the care of a family farm. Tell us what you need and we&apos;ll put a quote
             together within 24 hours.
           </p>
@@ -69,7 +69,7 @@ export default function B2BSection() {
               className="mt-10 grid grid-cols-3 gap-3"
             >
               {[
-                { v: "2008", l: "Trading since" },
+                { v: "1985", l: "Established" },
                 { v: "4", l: "Continents" },
                 { v: "100T+", l: "Yearly capacity" },
               ].map((s) => (

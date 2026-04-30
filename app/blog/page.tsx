@@ -6,7 +6,7 @@ import ShopNav from "@/components/shop/ShopNav";
 export const metadata: Metadata = {
   title: "Blog — Alphonso Mango Guide, Tips & Stories | Aamrit",
   description:
-    "Learn about Alphonso mangoes, natural ripening methods, health benefits, and stories from our 70-year-old orchards in Ratnagiri & Raigad. Expert tips from Yeskay Mango Farms.",
+    "Learn about Alphonso mangoes, natural ripening methods, health benefits, and stories from our family orchards in Ratnagiri & Raigad (established 1985, 22,000+ trees). Expert tips from Yeskay Mango Farms.",
   keywords: [
     "alphonso mango blog",
     "hapus mango tips",
@@ -28,7 +28,7 @@ const BLOG_POSTS = [
     slug: "how-to-identify-real-alphonso-mango",
     title: "How to Identify Real Alphonso Mango: 7 Expert Tips",
     excerpt:
-      "Learn the telltale signs that distinguish genuine Ratnagiri Alphonso from fake or artificially ripened mangoes. Our farmers share 70 years of knowledge.",
+      "Learn the telltale signs that distinguish genuine Ratnagiri Alphonso from fake or artificially ripened mangoes. Our farmers share generations of knowledge.",
     image: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=85",
     category: "Guide",
     readTime: "5 min read",
@@ -55,13 +55,13 @@ const BLOG_POSTS = [
     date: "April 5, 2026",
   },
   {
-    slug: "ratnagiri-vs-devgad-alphonso",
-    title: "Ratnagiri vs Devgad Alphonso: What's the Real Difference?",
+    slug: "ratnagiri-vs-karnataka-alphonso",
+    title: "Ratnagiri vs Karnataka Alphonso: Why Maharashtra is Superior",
     excerpt:
-      "Both regions produce GI-tagged Alphonso, but subtle differences in soil and climate create unique flavor profiles. Here's what to know.",
+      "Not all Alphonso is equal. Discover why GI-tagged Ratnagiri Alphonso stands apart from Karnataka varieties in taste, aroma, and quality.",
     image: "https://images.unsplash.com/photo-1605027990121-cbae9e0642df?auto=format&fit=crop&w=800&q=85",
     category: "Guide",
-    readTime: "4 min read",
+    readTime: "5 min read",
     date: "March 28, 2026",
   },
 ];
@@ -106,8 +106,8 @@ export default function BlogPage() {
             <div className="mt-10 flex items-center justify-center gap-8 sm:gap-12">
               {[
                 { value: "4", label: "Articles" },
-                { value: "70+", label: "Years Wisdom" },
-                { value: "15K+", label: "Trees" },
+                { value: "1985", label: "Established" },
+                { value: "22K+", label: "Trees" },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
                   <p className="font-serif text-2xl sm:text-3xl text-gold-300">{stat.value}</p>
@@ -237,49 +237,6 @@ export default function BlogPage() {
           </div>
         </div>
 
-        {/* Newsletter CTA */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative p-8 sm:p-12 lg:p-16 rounded-[2rem] overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-100 via-cream-50 to-gold-50" />
-            <div className="absolute inset-0 opacity-50" style={{
-              backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect fill='transparent' width='100' height='100'/><circle cx='50' cy='50' r='40' fill='none' stroke='%23F4A300' stroke-width='0.5' opacity='0.3'/></svg>\")",
-            }} />
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gold/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-leaf/10 rounded-full blur-3xl" />
-            
-            <div className="relative text-center">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 text-saffron text-xs font-semibold mb-4 shadow-sm">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Newsletter
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">
-                Get Mango Season Updates
-              </h2>
-              <p className="mt-3 text-charcoal/60 max-w-md mx-auto">
-                Be the first to know when pre-orders open and get exclusive farm stories delivered to your inbox.
-              </p>
-              <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-5 py-4 rounded-xl border-2 border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold text-charcoal placeholder:text-charcoal/40 shadow-sm"
-                />
-                <button
-                  type="submit"
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 text-white font-semibold shadow-lg shadow-gold/30 hover:shadow-gold/50 hover:scale-[1.02] transition-all"
-                >
-                  Subscribe
-                </button>
-              </form>
-              <p className="mt-4 text-xs text-charcoal/40">
-                No spam, ever. Unsubscribe anytime.
-              </p>
-            </div>
-          </div>
-        </div>
       </main>
     </>
   );

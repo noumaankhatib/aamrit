@@ -200,7 +200,7 @@ export default function CTASection() {
         </motion.div>
 
         <motion.p variants={fadeUp} className="mt-6 text-charcoal/50 text-sm">
-          Mango season is short. Pre-orders open every March.
+          Mango season is short — pre-orders open 1 March; deliveries begin 20 March.
         </motion.p>
       </motion.div>
     </section>

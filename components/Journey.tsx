@@ -5,201 +5,340 @@ import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 
 const MILESTONES = [
   {
-    year: "2008",
-    title: "Founded",
-    body: "A single family plot in Ratnagiri. The first crop, the first lessons.",
+    year: "1985",
+    title: "Kamal Kasam Kazi",
+    body:
+      "Our visionary founder, Late Mr. Kamal Kasam Kazi, started the business from a single family farm in Ratnagiri.",
     icon: "i-leaf",
-    metric: "1 farm",
+    metric: "Ratnagiri · legacy",
   },
   {
-    year: "2012",
-    title: "Vilye Plot",
-    body: "Our first major orchard — 20 acres, 1,400 trees, and a serious commitment.",
+    year: "2000",
+    title: "Ratnagiri growth",
+    body: "Expansion of farms to 70 acres in Ratnagiri.",
     icon: "i-tree",
-    metric: "20 acres",
+    metric: "70 acres",
   },
   {
-    year: "2016",
-    title: "Raigad Expansion",
-    body: "157-acre estate in Chordhe with 8,000 trees — scale, without losing the family touch.",
+    year: "2005",
+    title: "Raigad expansion",
+    body: "157 acres in Chordhe village with 9,000 trees 🌳",
     icon: "i-pin",
-    metric: "8,000 trees",
+    metric: "Chordhe · 157 ac",
+  },
+  {
+    year: "2010",
+    title: "Murud Janjira",
+    body: "Expansion of Raigad Murud Janjira farms to 300+ acres.",
+    icon: "i-tree",
+    metric: "300+ acres",
+  },
+  {
+    year: "2013",
+    title: "Ratnagiri portfolio",
+    body: "Added two more 20-acre farms to our portfolio in Ratnagiri.",
+    icon: "i-leaf",
+    metric: "+40 acres",
   },
   {
     year: "2019",
-    title: "Westmango Export",
-    body: "Launched our export arm. Aamrit mangoes start reaching tables abroad.",
+    title: "Westmango Agro Export",
+    body:
+      "Launched our export arm. Aamrit mangoes start reaching tables abroad.",
     icon: "i-globe",
-    metric: "5 countries",
+    metric: "Export arm",
   },
   {
     year: "Today",
     title: "Aamrit D2C",
-    body: "Direct-to-home from 10 farms across 402+ acres with 15,000+ Alphonso trees.",
+    body:
+      "Direct to home — 12 farms spread across 600+ acres with 22,000+ mango trees 🌳",
     icon: "i-mango",
-    metric: "15,000+ trees",
+    metric: "22,000+ trees",
   },
 ];
 
 export default function Journey() {
   return (
-    <section id="journey" className="relative bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+    <section
+      id="journey"
+      className="relative overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(180deg, #FFFDF9 0%, #FFF9F0 35%, #FFF4E0 70%, #FCEBC2 100%)",
+      }}
+    >
+      {/* Warm ambient glow blobs */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-gold/15 to-saffron/10 blur-[120px] pointer-events-none"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-leaf/8 to-gold/5 blur-[100px] pointer-events-none"
+      />
+
+      {/* Subtle decorative leaf watermarks */}
+      <svg
+        aria-hidden="true"
+        className="hidden lg:block absolute -top-8 -right-12 w-64 h-64 text-saffron/[0.07] rotate-12 pointer-events-none"
+      >
+        <use href="#i-leaf" />
+      </svg>
+      <svg
+        aria-hidden="true"
+        className="hidden lg:block absolute bottom-16 -left-10 w-52 h-52 text-leaf/[0.06] -rotate-12 pointer-events-none"
+      >
+        <use href="#i-leaf" />
+      </svg>
+
+      {/* Paper grain texture */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.025] pointer-events-none mix-blend-multiply"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>\")",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+        {/* Heading */}
         <motion.div
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
           variants={fadeUp}
-          className="text-center max-w-3xl mx-auto px-2 sm:px-0"
+          className="text-center max-w-5xl mx-auto px-2 sm:px-0"
         >
-          <span className="gold-rule text-[10px] xs:text-[11px] sm:text-xs">Our Journey</span>
-          <h2 className="mt-3 sm:mt-4 font-serif text-2xl xs:text-3xl sm:text-4xl lg:text-5xl text-charcoal leading-[1.1] sm:leading-[1.05]">
-            From a small family farm to{" "}
-            <span className="grad-text-static font-semibold">10 villages.</span>
+          <span className="gold-rule text-[10px] xs:text-[11px] sm:text-xs">
+            Our Journey
+          </span>
+          <h2 className="mt-5 font-serif text-3xl xs:text-4xl sm:text-[2.625rem] lg:text-5xl text-charcoal leading-[1.12] tracking-[-0.025em]">
+            From small family farm to{" "}
+            <span className="grad-text-static font-semibold">
+              the largest Alphonso mango{" "}
+              <span aria-hidden="true" className="inline-block align-baseline">
+                🥭
+              </span>{" "}
+              cultivators
+            </span>
+            .
           </h2>
-          <p className="mt-3 sm:mt-4 text-charcoal/70 text-sm sm:text-base lg:text-lg leading-relaxed">
-            Seventeen years, ten farms, two districts. The standards never changed.
+          <p className="mt-5 text-charcoal/65 text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl mx-auto">
+            40+ years, 2 districts, 12 farms. The standards never changed.
           </p>
+
+          {/* Decorative flourish */}
+          <div className="mt-7 flex items-center justify-center gap-3">
+            <span className="h-px w-14 bg-gradient-to-r from-transparent to-saffron/50 rounded-full" />
+            <svg className="w-4 h-4 text-saffron" aria-hidden="true">
+              <use href="#i-leaf" />
+            </svg>
+            <span className="h-px w-14 bg-gradient-to-l from-transparent to-saffron/50 rounded-full" />
+          </div>
         </motion.div>
 
-        {/* ─── DESKTOP — horizontal timeline with golden rail + station nodes ─── */}
+        {/* ─── DESKTOP — horizontal gold rail + 7 stations (xl+) ─── */}
         <motion.ol
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
-          variants={staggerContainer(0.12)}
-          className="hidden lg:block mt-16 relative"
+          variants={staggerContainer(0.08)}
+          className="hidden xl:grid xl:grid-cols-7 gap-3 2xl:gap-4 mt-16 relative pb-4"
         >
-          {/* Golden rail running through the station centers */}
-          <div
+          {/* Primary gold rail */}
+          <span
             aria-hidden="true"
-            className="absolute left-0 right-0 top-[5.5rem] h-[3px] rounded-full"
+            className="absolute left-[2%] right-[2%] top-[5.75rem] h-[4px] rounded-full xl:left-[3%] xl:right-[3%]"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #F4A300 8%, #E07A00 50%, #F4A300 92%, transparent 100%)",
-              boxShadow: "0 0 24px rgba(244,163,0,0.35)",
+                "linear-gradient(90deg, transparent 0%, #FFD773 8%, #F4A300 30%, #E07A00 50%, #F4A300 70%, #FFD773 92%, transparent 100%)",
+              boxShadow:
+                "0 0 32px rgba(244,163,0,0.4), 0 0 8px rgba(244,163,0,0.25)",
             }}
           />
-          {/* Dashed sub-rail for texture */}
-          <div
+          {/* Dashed sub-rail */}
+          <span
             aria-hidden="true"
-            className="absolute left-0 right-0 top-[5.7rem] h-px"
+            className="absolute left-[2%] right-[2%] top-[6.1rem] h-px xl:left-[3%] xl:right-[3%]"
             style={{
               background:
-                "repeating-linear-gradient(90deg, rgba(244,163,0,.45) 0 8px, transparent 8px 18px)",
+                "repeating-linear-gradient(90deg, rgba(224,122,0,.35) 0 6px, transparent 6px 14px)",
             }}
           />
 
-          <div className="grid grid-cols-5 gap-5">
-            {MILESTONES.map((m, i) => {
-              const isLast = i === MILESTONES.length - 1;
-              return (
-                <motion.li
-                  key={m.year}
-                  variants={fadeUp}
-                  className="relative flex flex-col items-center text-center"
+          {MILESTONES.map((m, i) => {
+            const isLast = i === MILESTONES.length - 1;
+            return (
+              <motion.li
+                key={m.year}
+                variants={fadeUp}
+                className="relative flex flex-col items-center text-center pt-2"
+              >
+                {/* Year */}
+                <span
+                  className={`font-serif font-bold tracking-tight leading-none mb-5 text-xl xl:text-[1.375rem] 2xl:text-[1.625rem] px-1 ${
+                    isLast
+                      ? "grad-text-static drop-shadow-sm"
+                      : "text-charcoal/90"
+                  }`}
                 >
+                  {m.year}
+                </span>
+
+                {/* Glowing node */}
+                <div className="relative mb-5 group">
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-br from-gold/40 to-saffron/30 blur-2xl scale-[2] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="absolute inset-0 rounded-full bg-gold/25 blur-lg scale-[1.5]" />
                   <span
-                    className={`font-serif text-3xl font-bold tracking-tight ${
-                      isLast ? "grad-text-static" : "text-charcoal"
+                    className={`relative inline-flex items-center justify-center w-[4rem] h-[4rem] xl:w-[4.5rem] xl:h-[4.5rem] rounded-full ring-[5px] ring-white shadow-[0_8px_32px_rgba(244,163,0,0.35),0_0_0_1px_rgba(255,255,255,0.5)_inset] transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(244,163,0,0.5)] ${
+                      isLast ? "grad-leaf" : "grad-gold-rich"
                     }`}
                   >
-                    {m.year}
-                  </span>
-
-                  <div className="relative mt-3 mb-6">
-                    <span className="absolute inset-0 rounded-full bg-gold/30 blur-md scale-125" />
-                    <span
-                      className={`relative inline-flex items-center justify-center w-16 h-16 rounded-full ring-4 ring-white shadow-glow ${
-                        isLast ? "grad-leaf" : "grad-gold-rich"
-                      }`}
+                    <svg
+                      className="w-7 h-7 xl:w-8 xl:h-8 text-white drop-shadow-md"
+                      aria-hidden
                     >
-                      <svg className="w-7 h-7 text-white" aria-hidden="true">
-                        <use href={`#${m.icon}`} />
-                      </svg>
-                    </span>
-                  </div>
+                      <use href={`#${m.icon}`} />
+                    </svg>
+                  </span>
+                </div>
 
-                  <div className="card-warm px-5 py-5 w-full relative">
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-1/2 -top-3 w-1 h-3 -translate-x-1/2 bg-gold/60 rounded-full"
-                    />
-                    <p className="font-serif text-xl font-semibold text-charcoal leading-tight">
+                {/* Card */}
+                <div
+                  className="group/card w-full text-left flex flex-col rounded-2xl mt-1 flex-1 min-h-[265px] 2xl:min-h-[245px] overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    background:
+                      "linear-gradient(165deg, #FFFFFF 0%, #FFFCF7 40%, #FFF8ED 100%)",
+                    boxShadow:
+                      "0 4px 20px rgba(43,43,43,0.06), 0 1px 3px rgba(43,43,43,0.04), inset 0 1px 0 rgba(255,255,255,0.9)",
+                    border: "1px solid rgba(244,163,0,0.18)",
+                  }}
+                >
+                  {/* Top accent bar */}
+                  <span
+                    aria-hidden="true"
+                    className="block h-1 w-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(244,163,0,0.5) 30%, rgba(224,122,0,0.6) 50%, rgba(244,163,0,0.5) 70%, transparent)",
+                    }}
+                  />
+                  <div className="px-4 py-5 xl:px-5 xl:py-6 flex flex-col flex-1">
+                    <p className="font-serif font-semibold text-charcoal leading-snug text-sm xl:text-[0.9375rem] tracking-tight">
                       {m.title}
                     </p>
-                    <p className="text-charcoal/75 text-sm mt-2.5 leading-relaxed">
+                    <p className="text-charcoal/65 leading-relaxed text-[11px] xl:text-xs mt-2.5 flex-1">
                       {m.body}
                     </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream-100 border border-gold/30 text-saffron-700 text-[10px] font-bold uppercase tracking-wider">
-                      <svg className="w-3 h-3" aria-hidden="true">
+                    <span
+                      className="mt-4 inline-flex w-fit items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] xl:text-[10px] font-bold uppercase tracking-wide transition-colors"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #FFF8ED, #FFF4E0)",
+                        border: "1px solid rgba(224,122,0,0.3)",
+                        color: "#b86200",
+                        boxShadow:
+                          "0 2px 6px rgba(224,122,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+                      }}
+                    >
+                      <svg className="w-3 h-3 shrink-0" aria-hidden>
                         <use href="#i-check" />
                       </svg>
                       {m.metric}
                     </span>
                   </div>
-                </motion.li>
-              );
-            })}
-          </div>
+                </div>
+              </motion.li>
+            );
+          })}
         </motion.ol>
 
-        {/* ─── MOBILE / TABLET — vertical timeline ─── */}
-        <motion.ol
+        {/* ─── MOBILE / TABLET — vertical cards ─── */}
+        <motion.div
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
-          variants={staggerContainer(0.12)}
-          className="lg:hidden mt-12 relative pl-12 sm:pl-16"
+          variants={staggerContainer(0.1)}
+          className="xl:hidden mt-14 space-y-5"
         >
-          <div
-            aria-hidden="true"
-            className="absolute left-5 sm:left-7 top-2 bottom-2 w-[3px] rounded-full"
-            style={{
-              background: "linear-gradient(180deg, #F4A300, #E07A00, #2E7D32)",
-            }}
-          />
-
-          <div className="space-y-7">
-            {MILESTONES.map((m, i) => {
-              const isLast = i === MILESTONES.length - 1;
-              return (
-                <motion.li key={m.year} variants={fadeUp} className="relative">
-                  <span
-                    className={`absolute -left-12 sm:-left-16 top-1 inline-flex items-center justify-center w-10 h-10 rounded-full ring-4 ring-white shadow-glow ${
-                      isLast ? "grad-leaf" : "grad-gold-rich"
-                    }`}
-                  >
-                    <svg className="w-5 h-5 text-white" aria-hidden="true">
-                      <use href={`#${m.icon}`} />
-                    </svg>
-                  </span>
-
-                  <div className="card-warm pt-5 pb-5 px-5 relative">
-                    <div className="flex items-baseline justify-between gap-3">
+          {MILESTONES.map((m, i) => {
+            const isLast = i === MILESTONES.length - 1;
+            return (
+              <motion.div
+                key={m.year}
+                variants={fadeUp}
+                className="group rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  background:
+                    "linear-gradient(165deg, #FFFFFF 0%, #FFFCF7 50%, #FFF8ED 100%)",
+                  boxShadow:
+                    "0 4px 24px rgba(43,43,43,0.07), 0 1px 3px rgba(43,43,43,0.04), inset 0 1px 0 rgba(255,255,255,0.9)",
+                  border: "1px solid rgba(244,163,0,0.15)",
+                }}
+              >
+                {/* Top accent bar */}
+                <span
+                  aria-hidden="true"
+                  className="block h-1 w-full"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(244,163,0,0.5) 25%, rgba(224,122,0,0.6) 50%, rgba(244,163,0,0.5) 75%, transparent)",
+                  }}
+                />
+                <div className="p-5 sm:p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <span
+                      className={`inline-flex shrink-0 h-14 w-14 items-center justify-center rounded-full ring-[5px] ring-white shadow-[0_8px_28px_rgba(244,163,0,0.3)] ${
+                        isLast ? "grad-leaf" : "grad-gold-rich"
+                      }`}
+                    >
+                      <svg
+                        className="h-7 w-7 text-white drop-shadow-md"
+                        aria-hidden
+                      >
+                        <use href={`#${m.icon}`} />
+                      </svg>
+                    </span>
+                    <div className="min-w-0 flex-1">
                       <span
-                        className={`font-serif text-2xl font-bold tracking-tight ${
-                          isLast ? "grad-text-static" : "text-charcoal"
+                        className={`font-serif text-2xl sm:text-[1.625rem] font-bold tracking-tight ${
+                          isLast ? "grad-text-static" : "text-charcoal/90"
                         }`}
                       >
                         {m.year}
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cream-100 border border-gold/30 text-saffron-700 text-[10px] font-bold uppercase tracking-wider">
+                      <p className="font-serif font-semibold text-charcoal mt-1.5 leading-snug">
+                        {m.title}
+                      </p>
+                      <p className="text-charcoal/65 text-sm mt-2.5 leading-relaxed">
+                        {m.body}
+                      </p>
+                      <span
+                        className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #FFF8ED, #FFF4E0)",
+                          border: "1px solid rgba(224,122,0,0.3)",
+                          color: "#b86200",
+                          boxShadow:
+                            "0 2px 6px rgba(224,122,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+                        }}
+                      >
+                        <svg className="w-3 h-3" aria-hidden>
+                          <use href="#i-check" />
+                        </svg>
                         {m.metric}
                       </span>
                     </div>
-                    <p className="font-serif text-lg font-semibold text-charcoal leading-tight mt-1">
-                      {m.title}
-                    </p>
-                    <p className="text-charcoal/75 text-sm mt-2 leading-relaxed">
-                      {m.body}
-                    </p>
                   </div>
-                </motion.li>
-              );
-            })}
-          </div>
-        </motion.ol>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

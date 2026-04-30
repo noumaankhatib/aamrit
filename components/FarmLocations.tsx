@@ -21,8 +21,8 @@ const DISTRICTS: District[] = [
     key: "ratnagiri",
     label: "Ratnagiri",
     tagline: "The Original Home of Alphonso",
-    trees: 6800,
-    acres: 150,
+    trees: 9900,
+    acres: 224,
     image: "/img/farms/ratnagiri-original-home-alphonso.png",
     imageAlt:
       "Alphonso mangoes ripening on trees in hillside rows overlooking the Konkan coast",
@@ -32,8 +32,8 @@ const DISTRICTS: District[] = [
     key: "raigad",
     label: "Raigad",
     tagline: "Our Largest Estate",
-    trees: 8400,
-    acres: 252,
+    trees: 12100,
+    acres: 376,
     image: "/img/farms/raigad-largest-estate.png",
     imageAlt:
       "Mango trees on a hillside with ripening fruit, valley and mountain range in the distance",
@@ -70,7 +70,7 @@ export default function FarmLocations() {
             Our Farms
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal">
-            <span className="grad-text">15,000+</span> trees across{" "}
+            <span className="grad-text">22,000+</span> trees across{" "}
             <span className="grad-text">2</span> districts
           </h2>
           <p className="mt-3 text-charcoal/60 text-base sm:text-lg max-w-xl mx-auto">
@@ -87,10 +87,10 @@ export default function FarmLocations() {
           className="grid grid-cols-4 gap-3 sm:gap-4 max-w-2xl mx-auto mb-12"
         >
           {[
-            { label: "Acres", value: 402 },
-            { label: "Trees", value: 15200 },
-            { label: "Plots", value: 10 },
-            { label: "Villages", value: 10 },
+            { label: "Acres", value: 600 },
+            { label: "Trees", value: 22000 },
+            { label: "Farms", value: 12 },
+            { label: "Districts", value: 2 },
           ].map((stat) => (
             <motion.div
               key={stat.label}

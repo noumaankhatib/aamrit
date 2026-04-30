@@ -44,7 +44,7 @@ const gradeFeatures: Record<string, { tagline: string; highlights: string[]; col
   A1: {
     tagline: "The Crown Jewel",
     highlights: [
-      "Largest size (250-350g each)",
+      "Largest size (250-305g each)",
       "Perfect golden-saffron color",
       "Exceptional sweetness (22+ Brix)",
       "Gift-worthy presentation",

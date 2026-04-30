@@ -20,7 +20,7 @@ const STEPS: Step[] = [
     title: "Flowering & Cultivation",
     season: "October — February",
     tag: "Slow farming",
-    body: "Year-round care across 402+ acres of Ratnagiri & Raigad. Mineral-rich red lateritic soil, drip irrigation, and hand-pruning shape every panicle that becomes a fruit.",
+    body: "Year-round care across 600+ acres and 12 farms in Ratnagiri & Raigad. Mineral-rich red lateritic soil, drip irrigation, and hand-pruning shape every panicle that becomes a fruit.",
     bullets: [
       "Organic compost & mulching",
       "Drip irrigation, no flooding",
@@ -69,7 +69,6 @@ const STEPS: Step[] = [
     bullets: [
       "Dispatched within 24 hours",
       "MH 4-5 days · Others 8-9 days",
-      "100% replacement guarantee",
     ],
     image: "/img/process/delivered-farm-fresh.png",
     imageAlt:
@@ -216,7 +215,7 @@ export default function OrchardStory() {
         }}
       />
 
-      <div className="relative mx-auto max-w-6xl px-5 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-32">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-24">
         <div className="text-center max-w-3xl mx-auto">
           {/* Label */}
           <span className="gold-rule text-[11px] sm:text-xs lg:text-sm tracking-[0.2em] sm:tracking-[0.25em]">
@@ -243,7 +242,7 @@ export default function OrchardStory() {
         </div>
 
         {/* Vertical spine + alternating rows */}
-        <div className="story-spine relative mt-12 sm:mt-20">
+        <div className="story-spine relative mt-10 sm:mt-16 lg:mt-20">
           {/* Center line — desktop only */}
           <div
             aria-hidden="true"
@@ -259,22 +258,21 @@ export default function OrchardStory() {
             style={{ transformOrigin: "top center" }}
           />
 
-          <ol className="space-y-10 xs:space-y-12 sm:space-y-16 lg:space-y-24 xl:space-y-28">
+          <ol className="space-y-8 sm:space-y-14 lg:space-y-24 xl:space-y-28">
             {STEPS.map((step, i) => {
               const reverse = i % 2 === 1;
               return (
                 <li
                   key={step.number}
-                  className={`story-row relative grid lg:grid-cols-2 gap-4 xs:gap-5 sm:gap-8 lg:gap-12 xl:gap-16 items-center ${
+                  className={`story-row relative grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8 lg:gap-12 xl:gap-16 items-center ${
                     reverse ? "lg:[direction:rtl]" : ""
                   }`}
                 >
                   {/* Photo */}
                   <div
-                    className="story-image relative card-edge overflow-hidden lg:[direction:ltr] group"
-                    style={{ borderRadius: "1rem" }}
+                    className="story-image relative overflow-hidden lg:[direction:ltr] group w-full"
                   >
-                    <div className="relative aspect-[4/3] xs:aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-[26rem] xl:h-[28rem] overflow-hidden rounded-xl xs:rounded-2xl sm:rounded-3xl">
+                    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] xl:aspect-[16/10] overflow-hidden rounded-2xl sm:rounded-3xl">
                       <Image
                         src={step.image}
                         alt={step.imageAlt}
@@ -287,47 +285,47 @@ export default function OrchardStory() {
 
                       {/* Big step number — positioned inside photo */}
                       <span
-                        className="story-step-num absolute top-2.5 left-2.5 xs:top-3 xs:left-3 sm:top-4 sm:left-4 lg:top-5 lg:left-5 inline-flex items-center justify-center w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-full grad-gold-rich text-white font-serif text-lg xs:text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-semibold shadow-glow ring-2 xs:ring-2 sm:ring-3 lg:ring-4 ring-white/90"
+                        className="story-step-num absolute top-3 left-3 sm:top-4 sm:left-4 lg:top-5 lg:left-5 inline-flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-full grad-gold-rich text-white font-serif text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-semibold shadow-glow ring-2 sm:ring-3 lg:ring-4 ring-white/90"
                       >
                         {step.number}
                       </span>
 
                       {/* Season chip — bottom-left of photo */}
-                      <span className="absolute bottom-2.5 left-2.5 xs:bottom-3 xs:left-3 sm:bottom-4 sm:left-4 lg:bottom-5 lg:left-5 inline-flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-2.5 sm:px-3 py-0.5 xs:py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur text-charcoal text-[9px] xs:text-[10px] sm:text-[11px] font-semibold tracking-wide sm:tracking-wider uppercase shadow-e1">
-                        <svg className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 text-saffron" aria-hidden="true">
+                      <span className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 lg:bottom-5 lg:left-5 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur text-charcoal text-[10px] sm:text-[11px] font-semibold tracking-wide sm:tracking-wider uppercase shadow-e1">
+                        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-saffron" aria-hidden="true">
                           <use href="#i-sun" />
                         </svg>
                         {step.season}
                       </span>
 
                       {/* Pull-quote tag — top-right */}
-                      <span className="absolute top-2.5 right-2.5 xs:top-3 xs:right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 px-2 xs:px-2.5 sm:px-3 py-0.5 xs:py-1 sm:py-1.5 rounded-full grad-leaf text-white text-[8px] xs:text-[9px] sm:text-[10px] font-bold tracking-[0.12em] xs:tracking-[0.15em] sm:tracking-[0.18em] uppercase shadow-e1">
+                      <span className="absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full grad-leaf text-white text-[9px] sm:text-[10px] font-bold tracking-[0.15em] sm:tracking-[0.18em] uppercase shadow-e1">
                         {step.tag}
                       </span>
                     </div>
                   </div>
 
                   {/* Copy */}
-                  <div className="story-copy lg:[direction:ltr] px-0.5 xs:px-1 sm:px-0">
-                    <p className="text-saffron text-[9px] xs:text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] xs:tracking-[0.25em] sm:tracking-[0.3em]">
+                  <div className="story-copy lg:[direction:ltr] px-1 sm:px-0">
+                    <p className="text-saffron text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] sm:tracking-[0.3em]">
                       Step {step.number}
                     </p>
-                    <h3 className="mt-1.5 xs:mt-2 sm:mt-3 font-serif text-xl xs:text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-charcoal leading-[1.2] xs:leading-[1.15] sm:leading-[1.1]">
+                    <h3 className="mt-2 sm:mt-3 font-serif text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-charcoal leading-[1.15] sm:leading-[1.1]">
                       {step.title}
                     </h3>
-                    <p className="mt-2 xs:mt-3 sm:mt-4 lg:mt-5 text-charcoal/70 text-[13px] xs:text-sm sm:text-base lg:text-lg leading-relaxed">
+                    <p className="mt-3 sm:mt-4 lg:mt-5 text-charcoal/70 text-sm sm:text-base lg:text-lg leading-relaxed">
                       {step.body}
                     </p>
 
                     {/* Craft bullets */}
-                    <ul className="mt-3 xs:mt-4 sm:mt-5 lg:mt-6 space-y-1.5 xs:space-y-2 sm:space-y-2.5">
+                    <ul className="mt-4 sm:mt-5 lg:mt-6 space-y-2 sm:space-y-2.5">
                       {step.bullets.map((b) => (
                         <li
                           key={b}
-                          className="flex items-center gap-2 xs:gap-2.5 sm:gap-3 text-charcoal/80 text-[12px] xs:text-xs sm:text-sm lg:text-base"
+                          className="flex items-center gap-2.5 sm:gap-3 text-charcoal/80 text-xs sm:text-sm lg:text-base"
                         >
-                          <span className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 rounded-full grad-gold-rich inline-flex items-center justify-center text-white shrink-0 shadow-e1">
-                            <svg className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true">
+                          <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full grad-gold-rich inline-flex items-center justify-center text-white shrink-0 shadow-e1">
+                            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" aria-hidden="true">
                               <use href="#i-check" />
                             </svg>
                           </span>

@@ -128,7 +128,7 @@ async function shopifyFetch<T>(
 /** Carton weights are sometimes stored on variants; ≥1 kg is not plausible per mango. */
 function normalizePerPieceWeightGrams(weightGrams: number, title: string): number {
   const gradeMatch = title.match(/Grade\s*(A\d)/i);
-  const midpoint: Record<string, number> = { A1: 300, A2: 225, A3: 175 };
+  const midpoint: Record<string, number> = { A1: 275, A2: 225, A3: 175 };
   const g = gradeMatch ? gradeMatch[1].toUpperCase() : null;
   const graded = g && midpoint[g] ? midpoint[g] : 300;
 

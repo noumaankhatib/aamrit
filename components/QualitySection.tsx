@@ -8,7 +8,7 @@ const DOS = [
   "5–7 day straw-cradle ripening",
   "Organic compost & mulching",
   "Drip irrigation, no flooding",
-  "Hand-sort, hand-pack",
+  "Each mango sorted on weight machine",
 ];
 
 const DONTS = [
@@ -107,7 +107,7 @@ export default function QualitySection() {
                 <div>
                   <p className="font-serif text-white text-2xl leading-none">Aamrit</p>
                   <p className="text-gold-200 text-[10px] tracking-[0.3em] uppercase mt-1">
-                    By Yeskay · Est. 2008
+                    By Yeskay · Est. 1985
                   </p>
                 </div>
               </div>

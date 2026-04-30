@@ -31,10 +31,10 @@ function formatPrice(cents: number): string {
 
 function getGradeInfo(name: string): { grade: string; weight: string; label?: string; popular?: boolean; sortOrder: number } {
   if (name.includes("A1")) {
-    return { grade: "Grade A1", weight: "250-350g", label: "Premium", popular: true, sortOrder: 1 };
+    return { grade: "Grade A1", weight: "250-305g", label: "Premium", sortOrder: 1 };
   }
   if (name.includes("A2")) {
-    return { grade: "Grade A2", weight: "200-250g", label: "Best Value", sortOrder: 2 };
+    return { grade: "Grade A2", weight: "200-250g", label: "Best Value", popular: true, sortOrder: 2 };
   }
   if (name.includes("A3")) {
     return { grade: "Grade A3", weight: "150-200g", sortOrder: 3 };
@@ -169,9 +169,7 @@ export default function Packaging({ products }: PackagingProps) {
                     </div>
                     <span
                       aria-hidden="true"
-                      className={`mt-auto pt-4 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white pointer-events-none ${
-                        info.popular ? "btn-gold" : "bg-charcoal transition-colors group-hover:bg-charcoal-700"
-                      }`}
+                      className="mt-auto pt-4 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white pointer-events-none btn-gold"
                     >
                       Order Now
                       <svg className="w-3.5 h-3.5" aria-hidden="true">
