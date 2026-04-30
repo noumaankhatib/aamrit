@@ -25,8 +25,16 @@ import {
 import {
   fetchCustomerAccountProfile,
   fetchCustomerAccountOrders,
+  fetchCustomerAccountOrderById,
   updateCustomerAccountProfile,
+  createCustomerAccountAddress,
+  updateCustomerAccountAddress,
+  deleteCustomerAccountAddress,
+  setDefaultCustomerAccountAddress,
+  type ShopifyOrderDetail,
+  type CustomerAddressInput,
 } from "@/lib/shopify-customer-account-data";
+import { revalidatePath } from "next/cache";
 
 const CUSTOMER_TOKEN_COOKIE = "shopify_customer_token";
 const CUSTOMER_TOKEN_EXPIRY_COOKIE = "shopify_customer_token_expiry";
@@ -266,25 +274,60 @@ export async function getMyOrders(first = 10): Promise<ShopifyOrder[]> {
   return orders;
 }
 
+export async function getOrderById(orderId: string): Promise<ShopifyOrderDetail | null> {
+  const caToken = await getCustomerAccountAccessToken();
+  if (!caToken) return null;
+  const { order } = await fetchCustomerAccountOrderById(caToken, orderId);
+  return order;
+}
+
 // ============================================================================
-// Address Actions (legacy Storefront token only)
+// Address Actions (Customer Account API preferred, legacy Storefront fallback)
 // ============================================================================
+
+function readAddressInput(formData: FormData): CustomerAddressInput & {
+  province?: string | null;
+  countryCode?: string | null;
+} {
+  return {
+    firstName: (formData.get("firstName") as string | null)?.trim() || null,
+    lastName: (formData.get("lastName") as string | null)?.trim() || null,
+    company: (formData.get("company") as string | null)?.trim() || null,
+    address1: (formData.get("address1") as string | null)?.trim() || null,
+    address2: (formData.get("address2") as string | null)?.trim() || null,
+    city: (formData.get("city") as string | null)?.trim() || null,
+    zoneCode: (formData.get("zoneCode") as string | null)?.trim() || null,
+    territoryCode:
+      ((formData.get("territoryCode") as string | null)?.trim() ||
+        (formData.get("countryCode") as string | null)?.trim() ||
+        "IN") as string,
+    zip: (formData.get("zip") as string | null)?.trim() || null,
+    phoneNumber: (formData.get("phoneNumber") as string | null)?.trim() || null,
+  };
+}
 
 export async function addAddressAction(
   _prevState: { error: string | null; success: boolean },
   formData: FormData
 ): Promise<{ error: string | null; success: boolean }> {
-  const token = await getCustomerToken();
-  if (!token) {
-    const ca = await getCustomerAccountAccessToken();
-    if (ca) {
-      return {
-        error: "Saved addresses sync from Shopify checkout. Sign in with password for classic address editing, or manage in Shopify account settings.",
-        success: false,
-      };
+  const setDefault = formData.get("setDefault") === "on";
+
+  const ca = await getCustomerAccountAccessToken();
+  if (ca) {
+    const input = readAddressInput(formData);
+    if (!input.address1 || !input.city || !input.zip) {
+      return { error: "Address line 1, city, and PIN code are required", success: false };
     }
-    return { error: "Not authenticated", success: false };
+    const result = await createCustomerAccountAddress(ca, input, setDefault);
+    if (!result.ok) {
+      return { error: result.error ?? "Failed to add address", success: false };
+    }
+    revalidatePath("/account");
+    return { error: null, success: true };
   }
+
+  const token = await getCustomerToken();
+  if (!token) return { error: "Not authenticated", success: false };
 
   const address: Omit<ShopifyAddress, "id"> = {
     firstName: formData.get("firstName") as string | null,
@@ -294,19 +337,18 @@ export async function addAddressAction(
     address2: formData.get("address2") as string | null,
     city: formData.get("city") as string | null,
     province: formData.get("province") as string | null,
-    provinceCode: formData.get("provinceCode") as string | null,
+    provinceCode: formData.get("zoneCode") as string | null,
     country: formData.get("country") as string | null,
-    countryCode: formData.get("countryCode") as string | null,
+    countryCode: (formData.get("territoryCode") as string | null) ?? "IN",
     zip: formData.get("zip") as string | null,
-    phone: formData.get("phone") as string | null,
+    phone: formData.get("phoneNumber") as string | null,
   };
 
   const { address: newAddress, error } = await createAddress(token, address);
-
   if (error || !newAddress) {
     return { error: error ?? "Failed to add address", success: false };
   }
-
+  revalidatePath("/account");
   return { error: null, success: true };
 }
 
@@ -315,10 +357,21 @@ export async function updateAddressAction(
   _prevState: { error: string | null; success: boolean },
   formData: FormData
 ): Promise<{ error: string | null; success: boolean }> {
-  const token = await getCustomerToken();
-  if (!token) {
-    return { error: "Not authenticated", success: false };
+  const setDefault = formData.get("setDefault") === "on";
+
+  const ca = await getCustomerAccountAccessToken();
+  if (ca) {
+    const input = readAddressInput(formData);
+    const result = await updateCustomerAccountAddress(ca, addressId, input, setDefault);
+    if (!result.ok) {
+      return { error: result.error ?? "Failed to update address", success: false };
+    }
+    revalidatePath("/account");
+    return { error: null, success: true };
   }
+
+  const token = await getCustomerToken();
+  if (!token) return { error: "Not authenticated", success: false };
 
   const address: Partial<Omit<ShopifyAddress, "id">> = {
     firstName: formData.get("firstName") as string | null,
@@ -328,48 +381,49 @@ export async function updateAddressAction(
     address2: formData.get("address2") as string | null,
     city: formData.get("city") as string | null,
     province: formData.get("province") as string | null,
-    provinceCode: formData.get("provinceCode") as string | null,
+    provinceCode: formData.get("zoneCode") as string | null,
     country: formData.get("country") as string | null,
-    countryCode: formData.get("countryCode") as string | null,
+    countryCode: (formData.get("territoryCode") as string | null) ?? "IN",
     zip: formData.get("zip") as string | null,
-    phone: formData.get("phone") as string | null,
+    phone: formData.get("phoneNumber") as string | null,
   };
 
   const { error } = await updateAddress(token, addressId, address);
-
-  if (error) {
-    return { error, success: false };
-  }
-
+  if (error) return { error, success: false };
+  revalidatePath("/account");
   return { error: null, success: true };
 }
 
 export async function deleteAddressAction(addressId: string): Promise<{ error: string | null }> {
+  const ca = await getCustomerAccountAccessToken();
+  if (ca) {
+    const result = await deleteCustomerAccountAddress(ca, addressId);
+    if (!result.ok) return { error: result.error ?? "Failed to delete address" };
+    revalidatePath("/account");
+    return { error: null };
+  }
+
   const token = await getCustomerToken();
-  if (!token) {
-    return { error: "Not authenticated" };
-  }
-
+  if (!token) return { error: "Not authenticated" };
   const { error } = await deleteAddress(token, addressId);
-
-  if (error) {
-    return { error };
-  }
-
+  if (error) return { error };
+  revalidatePath("/account");
   return { error: null };
 }
 
 export async function setDefaultAddressAction(addressId: string): Promise<{ error: string | null }> {
+  const ca = await getCustomerAccountAccessToken();
+  if (ca) {
+    const result = await setDefaultCustomerAccountAddress(ca, addressId);
+    if (!result.ok) return { error: result.error ?? "Failed to set default" };
+    revalidatePath("/account");
+    return { error: null };
+  }
+
   const token = await getCustomerToken();
-  if (!token) {
-    return { error: "Not authenticated" };
-  }
-
+  if (!token) return { error: "Not authenticated" };
   const { error } = await setDefaultAddress(token, addressId);
-
-  if (error) {
-    return { error };
-  }
-
+  if (error) return { error };
+  revalidatePath("/account");
   return { error: null };
 }

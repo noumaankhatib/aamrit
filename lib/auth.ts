@@ -30,6 +30,11 @@ export const authConfig: NextAuthConfig = {
     async signIn() {
       return true;
     },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return `${baseUrl}/account`;
+    },
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user?.email) {
         (token as ExtendedJWT).isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());

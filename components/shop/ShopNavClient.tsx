@@ -187,8 +187,8 @@ export default function ShopNavClient({
                             <MenuLink href="/admin" icon="spark" label="Admin Dashboard" highlight />
                           )}
                           <MenuLink href="/account" icon="user" label="My Account" />
-                          <MenuLink href="/account" icon="package" label="My Orders" />
-                          <MenuLink href="/shop" icon="spark" label="Browse products" />
+                          <MenuLink href="/account?tab=orders" icon="package" label="My Orders" />
+                          <MenuLink href="/account?tab=addresses" icon="spark" label="Addresses" />
                           <div className="border-t border-cream-100 mt-1 pt-1">
                             <form action="/api/auth/logout" method="POST">
                               <button

@@ -268,6 +268,163 @@ export async function fetchCustomerAccountOrders(
   return { orders, error: null };
 }
 
+export interface ShopifyOrderDetail {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  statusPageUrl: string | null;
+  totalPrice: { amount: string; currencyCode: string };
+  subtotalPrice: { amount: string; currencyCode: string } | null;
+  totalShipping: { amount: string; currencyCode: string } | null;
+  totalTax: { amount: string; currencyCode: string } | null;
+  shippingAddress: ShopifyAddress | null;
+  fulfillments: {
+    status: string;
+    trackingCompany: string | null;
+    trackingNumber: string | null;
+    trackingUrl: string | null;
+  }[];
+  lineItems: {
+    title: string;
+    quantity: number;
+    price: { amount: string; currencyCode: string } | null;
+    image: { url: string; altText: string | null } | null;
+  }[];
+}
+
+const ORDER_DETAIL_QUERY = `
+  query AccountOrderDetail($id: ID!) {
+    order(id: $id) {
+      id
+      number
+      processedAt
+      financialStatus
+      fulfillmentStatus
+      statusPageUrl
+      totalPrice { amount currencyCode }
+      subtotal { amount currencyCode }
+      totalShipping { amount currencyCode }
+      totalTax { amount currencyCode }
+      shippingAddress {
+        id
+        firstName
+        lastName
+        company
+        address1
+        address2
+        city
+        province
+        territoryCode
+        country
+        zip
+        zoneCode
+        phoneNumber
+      }
+      fulfillments(first: 10) {
+        edges {
+          node {
+            status
+            trackingInformation {
+              company
+              number
+              url
+            }
+          }
+        }
+      }
+      lineItems(first: 50) {
+        edges {
+          node {
+            title
+            name
+            quantity
+            price { amount currencyCode }
+            image { url altText }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchCustomerAccountOrderById(
+  accessToken: string,
+  orderId: string
+): Promise<{ order: ShopifyOrderDetail | null; error: string | null }> {
+  const json = await customerAccountFetch<{
+    order: Record<string, unknown> | null;
+  }>(accessToken, ORDER_DETAIL_QUERY, { id: orderId });
+
+  if (json.errors?.length) {
+    return { order: null, error: json.errors[0].message };
+  }
+
+  const o = json.data?.order;
+  if (!o) return { order: null, error: "Order not found" };
+
+  const lineEdges = (o.lineItems as { edges?: { node: Record<string, unknown> }[] })?.edges ?? [];
+  const lineItems = lineEdges.map(({ node: line }) => {
+    const title = (line.title as string) || (line.name as string) || "Item";
+    const qty = (line.quantity as number) ?? 1;
+    const price = line.price as { amount?: string; currencyCode?: string } | undefined;
+    const img = line.image as { url?: string; altText?: string | null } | undefined;
+    return {
+      title,
+      quantity: qty,
+      price: price?.amount
+        ? { amount: price.amount, currencyCode: price.currencyCode ?? "INR" }
+        : null,
+      image: img?.url ? { url: img.url, altText: img.altText ?? null } : null,
+    };
+  });
+
+  const fulfillEdges = (o.fulfillments as { edges?: { node: Record<string, unknown> }[] })?.edges ?? [];
+  const fulfillments = fulfillEdges.map(({ node: f }) => {
+    const ti = (f.trackingInformation as { company?: string; number?: string; url?: string }[] | undefined)?.[0];
+    return {
+      status: String(f.status ?? "UNKNOWN"),
+      trackingCompany: ti?.company ?? null,
+      trackingNumber: ti?.number ?? null,
+      trackingUrl: ti?.url ?? null,
+    };
+  });
+
+  const totalPrice = o.totalPrice as { amount?: string; currencyCode?: string };
+  const subtotal = o.subtotal as { amount?: string; currencyCode?: string } | undefined;
+  const shipping = o.totalShipping as { amount?: string; currencyCode?: string } | undefined;
+  const tax = o.totalTax as { amount?: string; currencyCode?: string } | undefined;
+
+  return {
+    order: {
+      id: String(o.id),
+      orderNumber: Number(o.number) ?? 0,
+      processedAt: String(o.processedAt ?? ""),
+      financialStatus: String(o.financialStatus ?? "UNKNOWN"),
+      fulfillmentStatus: String(o.fulfillmentStatus ?? "UNKNOWN"),
+      statusPageUrl: (o.statusPageUrl as string) ?? null,
+      totalPrice: {
+        amount: totalPrice?.amount ?? "0",
+        currencyCode: totalPrice?.currencyCode ?? "INR",
+      },
+      subtotalPrice: subtotal?.amount
+        ? { amount: subtotal.amount, currencyCode: subtotal.currencyCode ?? "INR" }
+        : null,
+      totalShipping: shipping?.amount
+        ? { amount: shipping.amount, currencyCode: shipping.currencyCode ?? "INR" }
+        : null,
+      totalTax: tax?.amount
+        ? { amount: tax.amount, currencyCode: tax.currencyCode ?? "INR" }
+        : null,
+      shippingAddress: mapAddress(o.shippingAddress as Record<string, unknown> | undefined),
+      fulfillments,
+      lineItems,
+    },
+    error: null,
+  };
+}
+
 const CUSTOMER_UPDATE_MUTATION = `
   mutation CustomerAccountUpdate($input: CustomerUpdateInput!) {
     customerUpdate(input: $input) {
@@ -305,5 +462,121 @@ export async function updateCustomerAccountProfile(
     return { ok: false, error: errs[0].message };
   }
 
+  return { ok: true, error: null };
+}
+
+export interface CustomerAddressInput {
+  firstName?: string | null;
+  lastName?: string | null;
+  company?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  zoneCode?: string | null;
+  territoryCode?: string | null;
+  zip?: string | null;
+  phoneNumber?: string | null;
+}
+
+const ADDRESS_CREATE_MUTATION = `
+  mutation CustomerAddressCreate($address: CustomerAddressInput!, $defaultAddress: Boolean) {
+    customerAddressCreate(address: $address, defaultAddress: $defaultAddress) {
+      customerAddress { id }
+      userErrors { code field message }
+    }
+  }
+`;
+
+const ADDRESS_UPDATE_MUTATION = `
+  mutation CustomerAddressUpdate($addressId: ID!, $address: CustomerAddressInput!, $defaultAddress: Boolean) {
+    customerAddressUpdate(addressId: $addressId, address: $address, defaultAddress: $defaultAddress) {
+      customerAddress { id }
+      userErrors { code field message }
+    }
+  }
+`;
+
+const ADDRESS_DELETE_MUTATION = `
+  mutation CustomerAddressDelete($addressId: ID!) {
+    customerAddressDelete(addressId: $addressId) {
+      deletedAddressId
+      userErrors { code field message }
+    }
+  }
+`;
+
+const ADDRESS_DEFAULT_UPDATE_MUTATION = `
+  mutation CustomerDefaultAddressUpdate($addressId: ID!) {
+    customerDefaultAddressUpdate(addressId: $addressId) {
+      customer { id }
+      userErrors { code field message }
+    }
+  }
+`;
+
+export async function createCustomerAccountAddress(
+  accessToken: string,
+  input: CustomerAddressInput,
+  setAsDefault = false
+): Promise<{ ok: boolean; error: string | null }> {
+  const json = await customerAccountFetch<{
+    customerAddressCreate: {
+      userErrors: { message: string }[];
+      customerAddress: { id: string } | null;
+    };
+  }>(accessToken, ADDRESS_CREATE_MUTATION, { address: input, defaultAddress: setAsDefault });
+  if (json.errors?.length) return { ok: false, error: json.errors[0].message };
+  const errs = json.data?.customerAddressCreate?.userErrors;
+  if (errs?.length) return { ok: false, error: errs[0].message };
+  return { ok: true, error: null };
+}
+
+export async function updateCustomerAccountAddress(
+  accessToken: string,
+  addressId: string,
+  input: CustomerAddressInput,
+  setAsDefault = false
+): Promise<{ ok: boolean; error: string | null }> {
+  const json = await customerAccountFetch<{
+    customerAddressUpdate: {
+      userErrors: { message: string }[];
+      customerAddress: { id: string } | null;
+    };
+  }>(accessToken, ADDRESS_UPDATE_MUTATION, { addressId, address: input, defaultAddress: setAsDefault });
+  if (json.errors?.length) return { ok: false, error: json.errors[0].message };
+  const errs = json.data?.customerAddressUpdate?.userErrors;
+  if (errs?.length) return { ok: false, error: errs[0].message };
+  return { ok: true, error: null };
+}
+
+export async function deleteCustomerAccountAddress(
+  accessToken: string,
+  addressId: string
+): Promise<{ ok: boolean; error: string | null }> {
+  const json = await customerAccountFetch<{
+    customerAddressDelete: {
+      userErrors: { message: string }[];
+      deletedAddressId: string | null;
+    };
+  }>(accessToken, ADDRESS_DELETE_MUTATION, { addressId });
+  if (json.errors?.length) return { ok: false, error: json.errors[0].message };
+  const errs = json.data?.customerAddressDelete?.userErrors;
+  if (errs?.length) return { ok: false, error: errs[0].message };
+  return { ok: true, error: null };
+}
+
+export async function setDefaultCustomerAccountAddress(
+  accessToken: string,
+  addressId: string
+): Promise<{ ok: boolean; error: string | null }> {
+  const json = await customerAccountFetch<{
+    customerDefaultAddressUpdate: {
+      userErrors: { message: string }[];
+      customer: { id: string } | null;
+    };
+  }>(accessToken, ADDRESS_DEFAULT_UPDATE_MUTATION, { addressId });
+  if (json.errors?.length) return { ok: false, error: json.errors[0].message };
+  const errs = json.data?.customerDefaultAddressUpdate?.userErrors;
+  if (errs?.length) return { ok: false, error: errs[0].message };
   return { ok: true, error: null };
 }
