@@ -37,9 +37,12 @@ export async function GET(request: Request) {
   }
 
   const clientId = env.shopify.customerAccountClientId;
-  if (!code || !verifier || !state || state !== savedState || !clientId) {
-    return loginWithError("invalid_oauth_response", baseUrl);
-  }
+  if (!clientId) return loginWithError("missing_client_id", baseUrl);
+  if (!code) return loginWithError("missing_code", baseUrl);
+  if (!verifier) return loginWithError("missing_verifier_cookie", baseUrl);
+  if (!state) return loginWithError("missing_state_param", baseUrl);
+  if (!savedState) return loginWithError("missing_state_cookie", baseUrl);
+  if (state !== savedState) return loginWithError("state_mismatch", baseUrl);
 
   const host = normalizeShopHost(env.shopify.publicStoreDomain || env.shopify.storeDomain);
   const oid = await discoverOpenIdConfiguration(host);

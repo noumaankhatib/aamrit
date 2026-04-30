@@ -64,8 +64,10 @@ export default function LoginForm() {
         return "Store configuration error. Please contact support.";
       case "discovery_failed":
         return "Could not connect to authentication service. Please try again.";
+      case "invalid_oauth_response":
+        return "Sign-in session expired or was tampered with. Please try again.";
       default:
-        return "Login failed. Please try again.";
+        return `Login failed: ${err}. Please try again.`;
     }
   };
 
