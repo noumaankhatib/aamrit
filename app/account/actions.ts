@@ -203,7 +203,10 @@ export async function recoverPasswordAction(
 export async function getCurrentCustomer(): Promise<ShopifyCustomer | null> {
   const caToken = await getCustomerAccountAccessToken();
   if (caToken) {
-    const { customer } = await fetchCustomerAccountProfile(caToken);
+    const { customer, error } = await fetchCustomerAccountProfile(caToken);
+    if (error) {
+      console.error("[getCurrentCustomer] Customer Account API failed:", error);
+    }
     return customer;
   }
 

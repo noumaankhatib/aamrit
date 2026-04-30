@@ -6,19 +6,23 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const authenticated = await isAuthenticated();
-  
+
   if (!authenticated) {
-    redirect("/account/login");
+    console.log("[/account] not authenticated, redirecting to login");
+    redirect("/account/login?error=not_authenticated");
   }
 
-  const [customer, orders] = await Promise.all([
-    getCurrentCustomer(),
-    getMyOrders(10),
-  ]);
+  const customer = await getCurrentCustomer();
 
   if (!customer) {
-    redirect("/account/login");
+    console.log("[/account] customer fetch returned null despite auth=true");
+    redirect("/account/login?error=customer_fetch_failed");
   }
+
+  const orders = await getMyOrders(10).catch((e) => {
+    console.error("[/account] getMyOrders failed:", e);
+    return [];
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
