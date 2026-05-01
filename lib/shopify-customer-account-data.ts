@@ -9,41 +9,121 @@ import {
 } from "@/lib/shopify-customer-account-auth";
 import { env } from "@/lib/env";
 
+export interface CustomerAccountAPIError {
+  message: string;
+  code?: string;
+  field?: string[];
+}
+
+export interface CustomerAccountAPIResponse<T> {
+  data?: T;
+  errors?: CustomerAccountAPIError[];
+}
+
 function getAppOrigin(): string {
   const u = env.appUrl.replace(/\/$/, "");
   return u.startsWith("http") ? u : `https://${u}`;
 }
 
+let cachedEndpoint: string | null = null;
+let endpointCacheTime = 0;
+const ENDPOINT_CACHE_TTL = 3600_000; // 1 hour
+
 async function getGraphqlEndpoint(): Promise<string | null> {
+  const now = Date.now();
+  if (cachedEndpoint && now - endpointCacheTime < ENDPOINT_CACHE_TTL) {
+    return cachedEndpoint;
+  }
+  
   const host = normalizeShopHost(env.shopify.publicStoreDomain || env.shopify.storeDomain);
   if (!host) return null;
-  return discoverCustomerAccountGraphqlUrl(host);
+  
+  const endpoint = await discoverCustomerAccountGraphqlUrl(host);
+  if (endpoint) {
+    cachedEndpoint = endpoint;
+    endpointCacheTime = now;
+  }
+  return endpoint;
 }
 
+/**
+ * Customer Account API GraphQL fetch with proper error handling.
+ * Handles HTTP errors, network failures, and GraphQL errors uniformly.
+ */
 async function customerAccountFetch<T>(
   accessToken: string,
   query: string,
-  variables?: Record<string, unknown>
-): Promise<{ data?: T; errors?: { message: string }[] }> {
+  variables?: Record<string, unknown>,
+  options: { timeout?: number } = {}
+): Promise<CustomerAccountAPIResponse<T>> {
+  const { timeout = 15000 } = options;
+  
   const endpoint = await getGraphqlEndpoint();
   if (!endpoint) {
-    return { errors: [{ message: "Customer Account API discovery failed" }] };
+    return { errors: [{ message: "Customer Account API endpoint discovery failed" }] };
   }
 
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: accessToken,
-      "User-Agent": "AamritStorefront/1.0",
-      Origin: getAppOrigin(),
-    },
-    body: JSON.stringify({ query, variables }),
-    cache: "no-store",
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken.startsWith("Bearer ") ? accessToken : `Bearer ${accessToken}`,
+        "User-Agent": "AamritStorefront/1.0",
+        Origin: getAppOrigin(),
+      },
+      body: JSON.stringify({ query, variables }),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
 
-  const json = (await res.json()) as { data?: T; errors?: { message: string }[] };
-  return json;
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "");
+      console.error(`[customerAccountFetch] HTTP ${res.status}:`, errorText.slice(0, 500));
+      
+      if (res.status === 401 || res.status === 403) {
+        return { errors: [{ message: "Session expired. Please sign in again.", code: "UNAUTHORIZED" }] };
+      }
+      
+      if (res.status >= 500) {
+        return { errors: [{ message: "Shopify service temporarily unavailable. Please try again.", code: "SERVER_ERROR" }] };
+      }
+      
+      return { errors: [{ message: `Request failed (${res.status})`, code: "HTTP_ERROR" }] };
+    }
+
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error("[customerAccountFetch] Non-JSON response:", text.slice(0, 500));
+      return { errors: [{ message: "Invalid response from server", code: "INVALID_RESPONSE" }] };
+    }
+
+    const json = (await res.json()) as CustomerAccountAPIResponse<T>;
+    
+    if (json.errors?.length) {
+      console.error("[customerAccountFetch] GraphQL errors:", json.errors);
+    }
+    
+    return json;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        return { errors: [{ message: "Request timed out. Please try again.", code: "TIMEOUT" }] };
+      }
+      console.error("[customerAccountFetch] Network error:", error.message);
+      return { errors: [{ message: "Network error. Please check your connection.", code: "NETWORK_ERROR" }] };
+    }
+    
+    return { errors: [{ message: "An unexpected error occurred", code: "UNKNOWN" }] };
+  }
 }
 
 function mapAddress(node: Record<string, unknown> | null | undefined): ShopifyAddress | null {

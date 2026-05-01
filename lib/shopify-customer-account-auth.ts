@@ -7,6 +7,14 @@
 import crypto from "crypto";
 import { env } from "@/lib/env";
 
+/**
+ * Extract shop ID from the store domain for Customer Account API authentication.
+ * The Customer Account API uses shop ID-based URLs, not myshopify domain.
+ */
+export function getShopId(): string | null {
+  return process.env.SHOPIFY_SHOP_ID ?? null;
+}
+
 export function normalizeShopHost(domain: string): string {
   return domain.replace(/^https?:\/\//, "").replace(/\/$/, "").split("/")[0] ?? "";
 }
@@ -34,27 +42,68 @@ export type OpenIdConfiguration = {
   end_session_endpoint?: string;
 };
 
+/**
+ * Get Customer Account API endpoints using the shop ID.
+ * These are static endpoints based on the Shopify shop ID.
+ */
+export function getCustomerAccountEndpoints(shopId: string): OpenIdConfiguration {
+  return {
+    authorization_endpoint: `https://shopify.com/authentication/${shopId}/oauth/authorize`,
+    token_endpoint: `https://shopify.com/authentication/${shopId}/oauth/token`,
+    end_session_endpoint: `https://shopify.com/authentication/${shopId}/logout`,
+  };
+}
+
+/**
+ * Discover OpenID configuration. First tries shop ID-based endpoints (preferred),
+ * then falls back to myshopify domain discovery.
+ */
 export async function discoverOpenIdConfiguration(
   shopHost: string
 ): Promise<OpenIdConfiguration | null> {
+  const shopId = getShopId();
+  
+  if (shopId) {
+    return getCustomerAccountEndpoints(shopId);
+  }
+  
   const url = `https://${shopHost}/.well-known/openid-configuration`;
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 3600 },
-  });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (error) {
+    console.error("[discoverOpenIdConfiguration] Failed:", error);
+    return null;
+  }
 }
 
+/**
+ * Get Customer Account API GraphQL endpoint.
+ */
 export async function discoverCustomerAccountGraphqlUrl(shopHost: string): Promise<string | null> {
+  const shopId = getShopId();
+  
+  if (shopId) {
+    return `https://shopify.com/${shopId}/account/customer/api/2024-10/graphql`;
+  }
+  
   const url = `https://${shopHost}/.well-known/customer-account-api`;
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 3600 },
-  });
-  if (!res.ok) return null;
-  const data = (await res.json()) as { graphql_api?: string };
-  return data.graphql_api ?? null;
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { graphql_api?: string };
+    return data.graphql_api ?? null;
+  } catch (error) {
+    console.error("[discoverCustomerAccountGraphqlUrl] Failed:", error);
+    return null;
+  }
 }
 
 function getAppOrigin(): string {

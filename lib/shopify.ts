@@ -3,10 +3,14 @@
  * Centralizes all Shopify API calls with proper error handling and caching.
  */
 
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ?? "";
-const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? "";
+import {
+  env,
+  isShopifyConfigured,
+  getStorefrontApiUrl,
+  getStorefrontToken,
+} from "@/lib/env";
 
-const STOREFRONT_API_URL = `https://${SHOPIFY_DOMAIN}/api/2024-01/graphql.json`;
+const STOREFRONT_API_URL = getStorefrontApiUrl();
 
 // Type definitions matching current frontend data shapes
 export interface ShopifyProduct {
@@ -60,30 +64,45 @@ interface ShopifyResponse<T> {
   errors?: ShopifyAPIError[];
 }
 
+interface ShopifyFetchOptions {
+  cache?: RequestCache;
+  revalidate?: number;
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+}
+
+/**
+ * Core Shopify Storefront API fetch with retry logic and improved error handling.
+ */
 async function shopifyFetch<T>(
   query: string,
   variables: Record<string, unknown> = {},
-  options: { cache?: RequestCache; revalidate?: number; timeout?: number } = {}
+  options: ShopifyFetchOptions = {}
 ): Promise<T> {
-  const { cache, revalidate, timeout = 10000 } = options;
+  const {
+    cache,
+    revalidate,
+    timeout = 10000,
+    retries = 2,
+    retryDelay = 1000,
+  } = options;
 
-  if (!SHOPIFY_DOMAIN || !STOREFRONT_TOKEN) {
+  if (!isShopifyConfigured()) {
     throw new Error(
       "Shopify credentials not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN."
     );
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  const fetchOptions: RequestInit = {
+  const token = getStorefrontToken(true);
+  
+  const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+      "X-Shopify-Storefront-Access-Token": token,
     },
     body: JSON.stringify({ query, variables }),
-    signal: controller.signal,
   };
 
   if (cache) {
@@ -91,38 +110,70 @@ async function shopifyFetch<T>(
   }
 
   if (revalidate !== undefined) {
-    (fetchOptions as any).next = { revalidate };
+    fetchOptions.next = { revalidate };
   }
 
-  let response: Response;
-  try {
-    response = await fetch(STOREFRONT_API_URL, fetchOptions);
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`Shopify API request timed out after ${timeout}ms`);
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      const response = await fetch(STOREFRONT_API_URL, {
+        ...fetchOptions,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(
+          `Shopify API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 200)}` : ""}`
+        );
+      }
+
+      const json: ShopifyResponse<T> = await response.json();
+
+      if (json.errors?.length) {
+        const errorMessages = json.errors.map((e) => e.message).join(", ");
+        console.error("[shopifyFetch] GraphQL errors:", json.errors);
+        throw new Error(`Shopify GraphQL error: ${errorMessages}`);
+      }
+
+      if (!json.data) {
+        throw new Error("No data returned from Shopify");
+      }
+
+      return json.data;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      if (error instanceof Error && error.name === "AbortError") {
+        lastError = new Error(`Shopify API request timed out after ${timeout}ms`);
+      }
+      
+      const isRetryable =
+        lastError.message.includes("timed out") ||
+        lastError.message.includes("503") ||
+        lastError.message.includes("502") ||
+        lastError.message.includes("429") ||
+        lastError.message.includes("ECONNRESET");
+      
+      if (attempt < retries && isRetryable) {
+        const delay = retryDelay * Math.pow(2, attempt);
+        console.warn(`[shopifyFetch] Retry ${attempt + 1}/${retries} after ${delay}ms:`, lastError.message);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      throw lastError;
     }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
   }
-
-  if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
-  }
-
-  const json: ShopifyResponse<T> = await response.json();
-
-  if (json.errors?.length) {
-    console.error("Shopify GraphQL errors:", json.errors);
-    throw new Error(json.errors[0].message);
-  }
-
-  if (!json.data) {
-    throw new Error("No data returned from Shopify");
-  }
-
-  return json.data;
+  
+  throw lastError ?? new Error("Shopify fetch failed");
 }
 
 /** Carton weights are sometimes stored on variants; ≥1 kg is not plausible per mango. */
@@ -834,14 +885,13 @@ export async function getProductVariantIdByHandle(handle: string): Promise<strin
 }
 
 // ============================================================================
-// Utility exports for env checking
+// Re-export configuration utilities from centralized env module
 // ============================================================================
 
-export function isShopifyConfigured(): boolean {
-  return Boolean(SHOPIFY_DOMAIN && STOREFRONT_TOKEN);
-}
+export { isShopifyConfigured } from "@/lib/env";
 
 export const shopifyConfig = {
-  domain: SHOPIFY_DOMAIN,
-  storefrontToken: STOREFRONT_TOKEN,
+  domain: env.shopify.storeDomain,
+  storefrontToken: env.shopify.storefrontAccessToken,
+  apiVersion: env.shopify.apiVersion,
 };

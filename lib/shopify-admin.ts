@@ -1,11 +1,11 @@
 /**
- * Shopify Admin API client for order management
+ * Shopify Admin API client for order management.
+ * Uses centralized configuration from env.ts.
  */
 
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ?? "";
-const ADMIN_API_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ?? "";
+import { env, isAdminApiConfigured, getAdminApiUrl } from "@/lib/env";
 
-const ADMIN_API_URL = `https://${SHOPIFY_DOMAIN}/admin/api/2024-01/graphql.json`;
+const ADMIN_API_URL = getAdminApiUrl();
 
 // Order types
 export interface ShopifyOrder {
@@ -121,42 +121,89 @@ interface AdminAPIResponse<T> {
   errors?: Array<{ message: string }>;
 }
 
+interface AdminFetchOptions {
+  timeout?: number;
+  retries?: number;
+}
+
 async function adminFetch<T>(
   query: string,
-  variables: Record<string, unknown> = {}
+  variables: Record<string, unknown> = {},
+  options: AdminFetchOptions = {}
 ): Promise<T> {
-  if (!SHOPIFY_DOMAIN || !ADMIN_API_TOKEN) {
+  const { timeout = 15000, retries = 1 } = options;
+  
+  if (!isAdminApiConfigured()) {
     throw new Error(
       "Shopify Admin API credentials not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_ACCESS_TOKEN."
     );
   }
 
-  const response = await fetch(ADMIN_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Access-Token": ADMIN_API_TOKEN,
-    },
-    body: JSON.stringify({ query, variables }),
-    cache: "no-store",
-  });
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+      const response = await fetch(ADMIN_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": env.shopify.adminAccessToken,
+        },
+        body: JSON.stringify({ query, variables }),
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
 
-  if (!response.ok) {
-    throw new Error(`Shopify Admin API error: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(
+          `Shopify Admin API error: ${response.status} ${response.statusText}${errorText ? ` - ${errorText.slice(0, 200)}` : ""}`
+        );
+      }
+
+      const json: AdminAPIResponse<T> = await response.json();
+
+      if (json.errors?.length) {
+        console.error("[adminFetch] GraphQL errors:", json.errors);
+        throw new Error(json.errors[0].message);
+      }
+
+      if (!json.data) {
+        throw new Error("No data returned from Shopify Admin API");
+      }
+
+      return json.data;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      if (error instanceof Error && error.name === "AbortError") {
+        lastError = new Error(`Admin API request timed out after ${timeout}ms`);
+      }
+      
+      const isRetryable =
+        lastError.message.includes("timed out") ||
+        lastError.message.includes("503") ||
+        lastError.message.includes("502") ||
+        lastError.message.includes("429");
+      
+      if (attempt < retries && isRetryable) {
+        const delay = 1000 * Math.pow(2, attempt);
+        console.warn(`[adminFetch] Retry ${attempt + 1}/${retries} after ${delay}ms`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      throw lastError;
+    }
   }
-
-  const json: AdminAPIResponse<T> = await response.json();
-
-  if (json.errors?.length) {
-    console.error("Shopify Admin GraphQL errors:", json.errors);
-    throw new Error(json.errors[0].message);
-  }
-
-  if (!json.data) {
-    throw new Error("No data returned from Shopify Admin API");
-  }
-
-  return json.data;
+  
+  throw lastError ?? new Error("Admin API fetch failed");
 }
 
 const ORDER_FRAGMENT = `

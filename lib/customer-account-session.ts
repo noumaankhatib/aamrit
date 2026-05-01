@@ -1,9 +1,10 @@
 /**
  * HttpOnly cookie session for Shopify Customer Account OAuth tokens.
+ * Handles token storage, expiry checking, and automatic refresh.
  */
 
 import { cookies } from "next/headers";
-import { env } from "@/lib/env";
+import { env, isCustomerAccountConfigured } from "@/lib/env";
 import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
@@ -23,14 +24,34 @@ const cookieBase = {
   path: "/",
 };
 
-export async function clearCustomerAccountCookies(): Promise<void> {
-  const jar = await cookies();
-  jar.delete(CA_ACCESS_COOKIE);
-  jar.delete(CA_REFRESH_COOKIE);
-  jar.delete(CA_EXPIRES_COOKIE);
-  jar.delete(CA_ID_TOKEN_COOKIE);
+const REFRESH_BUFFER_MS = 120_000; // Refresh 2 minutes before expiry
+const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 90; // 90 days
+
+export interface CustomerAccountSession {
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: Date;
+  idToken?: string;
 }
 
+/**
+ * Clear all Customer Account session cookies.
+ */
+export async function clearCustomerAccountCookies(): Promise<void> {
+  try {
+    const jar = await cookies();
+    jar.delete(CA_ACCESS_COOKIE);
+    jar.delete(CA_REFRESH_COOKIE);
+    jar.delete(CA_EXPIRES_COOKIE);
+    jar.delete(CA_ID_TOKEN_COOKIE);
+  } catch (error) {
+    console.error("[clearCustomerAccountCookies] Failed:", error);
+  }
+}
+
+/**
+ * Set Customer Account session cookies.
+ */
 export async function setCustomerAccountSession(tokens: {
   accessToken: string;
   refreshToken?: string;
@@ -48,7 +69,7 @@ export async function setCustomerAccountSession(tokens: {
   if (tokens.refreshToken) {
     jar.set(CA_REFRESH_COOKIE, tokens.refreshToken, {
       ...cookieBase,
-      maxAge: 60 * 60 * 24 * 90,
+      maxAge: REFRESH_TOKEN_MAX_AGE,
     });
   }
 
@@ -60,15 +81,63 @@ export async function setCustomerAccountSession(tokens: {
   if (tokens.idToken) {
     jar.set(CA_ID_TOKEN_COOKIE, tokens.idToken, {
       ...cookieBase,
-      maxAge: 60 * 60 * 24 * 90,
+      maxAge: REFRESH_TOKEN_MAX_AGE,
     });
   }
 }
 
 /**
+ * Check if a Customer Account session exists (without triggering refresh).
+ * Useful for quick auth checks in middleware or UI.
+ */
+export async function hasCustomerAccountSession(): Promise<boolean> {
+  try {
+    const jar = await cookies();
+    const access = jar.get(CA_ACCESS_COOKIE)?.value;
+    const expRaw = jar.get(CA_EXPIRES_COOKIE)?.value;
+    
+    if (!access) return false;
+    
+    const expiresMs = expRaw ? new Date(expRaw).getTime() : 0;
+    return expiresMs > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get the current session info without refreshing.
+ */
+export async function getCustomerAccountSessionInfo(): Promise<CustomerAccountSession | null> {
+  try {
+    const jar = await cookies();
+    const accessToken = jar.get(CA_ACCESS_COOKIE)?.value;
+    const refreshToken = jar.get(CA_REFRESH_COOKIE)?.value;
+    const expRaw = jar.get(CA_EXPIRES_COOKIE)?.value;
+    const idToken = jar.get(CA_ID_TOKEN_COOKIE)?.value;
+    
+    if (!accessToken) return null;
+    
+    return {
+      accessToken,
+      refreshToken,
+      expiresAt: expRaw ? new Date(expRaw) : new Date(0),
+      idToken,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Returns a valid Customer Account API bearer token, refreshing when close to expiry.
+ * Returns null if no valid session exists or refresh fails.
  */
 export async function getCustomerAccountAccessToken(): Promise<string | null> {
+  if (!isCustomerAccountConfigured()) {
+    return null;
+  }
+  
   const jar = await cookies();
   const access = jar.get(CA_ACCESS_COOKIE)?.value;
   const refresh = jar.get(CA_REFRESH_COOKIE)?.value;
@@ -78,54 +147,67 @@ export async function getCustomerAccountAccessToken(): Promise<string | null> {
   if (!access) return null;
 
   const expiresMs = expRaw ? new Date(expRaw).getTime() : 0;
-  const bufferMs = 120_000;
+  const now = Date.now();
 
-  if (expiresMs > Date.now() + bufferMs) {
+  if (expiresMs > now + REFRESH_BUFFER_MS) {
     return access;
   }
 
   if (!refresh || !clientId) {
-    return expiresMs > Date.now() ? access : null;
+    return expiresMs > now ? access : null;
   }
 
   const host = normalizeShopHost(env.shopify.publicStoreDomain || env.shopify.storeDomain);
-  if (!host) return expiresMs > Date.now() ? access : null;
-
-  const oid = await discoverOpenIdConfiguration(host);
-  if (!oid) return expiresMs > Date.now() ? access : null;
-
-  const result = await refreshAccessToken({
-    tokenEndpoint: oid.token_endpoint,
-    clientId,
-    refreshToken: refresh,
-  });
-
-  if (!result.ok) {
-    await clearCustomerAccountCookies();
-    return null;
+  if (!host) {
+    return expiresMs > now ? access : null;
   }
 
-  const t = result.tokens;
+  try {
+    const oid = await discoverOpenIdConfiguration(host);
+    if (!oid?.token_endpoint) {
+      console.warn("[getCustomerAccountAccessToken] OIDC discovery failed");
+      return expiresMs > now ? access : null;
+    }
 
-  const apiTokenResult = await exchangeForCustomerApiToken({
-    tokenEndpoint: oid.token_endpoint,
-    clientId,
-    oauthAccessToken: t.access_token,
-  });
+    const refreshResult = await refreshAccessToken({
+      tokenEndpoint: oid.token_endpoint,
+      clientId,
+      refreshToken: refresh,
+    });
 
-  if (!apiTokenResult.ok) {
-    await clearCustomerAccountCookies();
-    return null;
+    if (!refreshResult.ok) {
+      console.error("[getCustomerAccountAccessToken] Refresh failed:", refreshResult.error);
+      await clearCustomerAccountCookies();
+      return null;
+    }
+
+    const t = refreshResult.tokens;
+
+    const apiTokenResult = await exchangeForCustomerApiToken({
+      tokenEndpoint: oid.token_endpoint,
+      clientId,
+      oauthAccessToken: t.access_token,
+    });
+
+    if (!apiTokenResult.ok) {
+      console.error("[getCustomerAccountAccessToken] Token exchange failed:", apiTokenResult.error);
+      await clearCustomerAccountCookies();
+      return null;
+    }
+
+    const apiToken = apiTokenResult.tokens;
+    const prevId = jar.get(CA_ID_TOKEN_COOKIE)?.value;
+    
+    await setCustomerAccountSession({
+      accessToken: apiToken.access_token,
+      refreshToken: t.refresh_token ?? refresh,
+      expiresInSeconds: apiToken.expires_in || t.expires_in,
+      idToken: t.id_token ?? prevId,
+    });
+
+    return apiToken.access_token;
+  } catch (error) {
+    console.error("[getCustomerAccountAccessToken] Unexpected error:", error);
+    return expiresMs > now ? access : null;
   }
-
-  const apiToken = apiTokenResult.tokens;
-  const prevId = jar.get(CA_ID_TOKEN_COOKIE)?.value;
-  await setCustomerAccountSession({
-    accessToken: apiToken.access_token,
-    refreshToken: t.refresh_token ?? refresh,
-    expiresInSeconds: apiToken.expires_in || t.expires_in,
-    idToken: t.id_token ?? prevId,
-  });
-
-  return apiToken.access_token;
 }

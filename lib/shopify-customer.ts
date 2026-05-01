@@ -1,11 +1,17 @@
 /**
- * Shopify Customer Account API utilities.
- * Handles customer authentication, registration, and account management.
+ * Shopify Customer Account API utilities (Legacy Storefront API).
+ * Handles customer authentication, registration, and account management
+ * via the Storefront API customer mutations.
  */
 
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ?? "";
-const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN ?? "";
-const STOREFRONT_API_URL = `https://${SHOPIFY_DOMAIN}/api/2024-01/graphql.json`;
+import {
+  env,
+  isShopifyConfigured,
+  getStorefrontApiUrl,
+  getStorefrontToken,
+} from "@/lib/env";
+
+const STOREFRONT_API_URL = getStorefrontApiUrl();
 
 // ============================================================================
 // Types
@@ -72,37 +78,55 @@ interface ShopifyResponse<T> {
 
 async function shopifyCustomerFetch<T>(
   query: string,
-  variables: Record<string, unknown> = {}
+  variables: Record<string, unknown> = {},
+  options: { timeout?: number } = {}
 ): Promise<T> {
-  if (!SHOPIFY_DOMAIN || !STOREFRONT_TOKEN) {
+  const { timeout = 15000 } = options;
+  
+  if (!isShopifyConfigured()) {
     throw new Error("Shopify credentials not configured");
   }
 
-  const response = await fetch(STOREFRONT_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
-    },
-    body: JSON.stringify({ query, variables }),
-    cache: "no-store",
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(STOREFRONT_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": getStorefrontToken(true),
+      },
+      body: JSON.stringify({ query, variables }),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
 
-  if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(`Shopify API error: ${response.status}${errorText ? ` - ${errorText.slice(0, 200)}` : ""}`);
+    }
+
+    const json: ShopifyResponse<T> = await response.json();
+
+    if (json.errors?.length) {
+      throw new Error(json.errors[0].message);
+    }
+
+    if (!json.data) {
+      throw new Error("No data returned from Shopify");
+    }
+
+    return json.data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`Shopify API request timed out after ${timeout}ms`);
+    }
+    throw error;
   }
-
-  const json: ShopifyResponse<T> = await response.json();
-
-  if (json.errors?.length) {
-    throw new Error(json.errors[0].message);
-  }
-
-  if (!json.data) {
-    throw new Error("No data returned from Shopify");
-  }
-
-  return json.data;
 }
 
 // ============================================================================
