@@ -104,14 +104,16 @@ async function customerAccountFetch<T>(
       return { errors: [{ message: `Request failed (${res.status})`, code: "HTTP_ERROR" }] };
     }
 
-    const contentType = res.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      const text = await res.text();
-      console.error("[customerAccountFetch] Non-JSON response:", text.slice(0, 500));
+    // Parse JSON response - don't check content-type strictly as Shopify may vary the header
+    const text = await res.text();
+    let json: CustomerAccountAPIResponse<T>;
+    
+    try {
+      json = JSON.parse(text) as CustomerAccountAPIResponse<T>;
+    } catch {
+      console.error("[customerAccountFetch] Failed to parse response as JSON:", text.slice(0, 500));
       return { errors: [{ message: "Invalid response from server", code: "INVALID_RESPONSE" }] };
     }
-
-    const json = (await res.json()) as CustomerAccountAPIResponse<T>;
     
     if (json.errors?.length) {
       console.error("[customerAccountFetch] GraphQL errors:", json.errors);
