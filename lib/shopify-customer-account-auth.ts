@@ -129,12 +129,18 @@ export async function exchangeForCustomerApiToken(params: {
   clientId: string;
   oauthAccessToken: string;
 }): Promise<{ ok: true; tokens: TokenResponse } | { ok: false; error: string }> {
+  // Match Shopify Hydrogen's exact token-exchange request shape.
+  // Reference: github.com/Shopify/hydrogen packages/hydrogen/src/customer/auth.helpers.ts
+  // Key gotchas: grant_type is token-exchange (not jwt-bearer);
+  // field is "scopes" (plural, NOT "scope"); audience is the static
+  // CUSTOMER_API_CLIENT_ID UUID; Origin header must be the app origin.
   const body = new URLSearchParams();
-  body.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
+  body.append("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
   body.append("client_id", params.clientId);
   body.append("audience", "30243aa5-17c1-465a-8493-944bcc4e88aa");
-  body.append("assertion", params.oauthAccessToken);
-  body.append("scope", "customer-account-api:full");
+  body.append("subject_token", params.oauthAccessToken);
+  body.append("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
+  body.append("scopes", "https://api.customers.com/auth/customer.graphql");
 
   const res = await fetch(params.tokenEndpoint, {
     method: "POST",

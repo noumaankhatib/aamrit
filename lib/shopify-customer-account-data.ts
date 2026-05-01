@@ -9,6 +9,11 @@ import {
 } from "@/lib/shopify-customer-account-auth";
 import { env } from "@/lib/env";
 
+function getAppOrigin(): string {
+  const u = env.appUrl.replace(/\/$/, "");
+  return u.startsWith("http") ? u : `https://${u}`;
+}
+
 async function getGraphqlEndpoint(): Promise<string | null> {
   const host = normalizeShopHost(env.shopify.publicStoreDomain || env.shopify.storeDomain);
   if (!host) return null;
@@ -31,6 +36,7 @@ async function customerAccountFetch<T>(
       "Content-Type": "application/json",
       Authorization: accessToken,
       "User-Agent": "AamritStorefront/1.0",
+      Origin: getAppOrigin(),
     },
     body: JSON.stringify({ query, variables }),
     cache: "no-store",
