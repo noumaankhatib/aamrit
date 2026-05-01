@@ -130,11 +130,10 @@ export async function exchangeForCustomerApiToken(params: {
   oauthAccessToken: string;
 }): Promise<{ ok: true; tokens: TokenResponse } | { ok: false; error: string }> {
   const body = new URLSearchParams();
-  body.append("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+  body.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
   body.append("client_id", params.clientId);
   body.append("audience", "30243aa5-17c1-465a-8493-944bcc4e88aa");
-  body.append("subject_token", params.oauthAccessToken);
-  body.append("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
+  body.append("assertion", params.oauthAccessToken);
   body.append("scope", "https://api.customers.com/auth/customer.graphql");
 
   const res = await fetch(params.tokenEndpoint, {
