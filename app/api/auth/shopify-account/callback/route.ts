@@ -5,6 +5,7 @@ import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
   exchangeAuthorizationCode,
+  exchangeForCustomerApiToken,
   getOAuthCallbackUrl,
 } from "@/lib/shopify-customer-account-auth";
 import { setCustomerAccountSession } from "@/lib/customer-account-session";
@@ -64,10 +65,23 @@ export async function GET(request: Request) {
 
   const t = exchanged.tokens;
 
+  // Step 2: trade the OAuth JWT for an shcat_-prefixed Customer Account API token.
+  const apiTokenResult = await exchangeForCustomerApiToken({
+    tokenEndpoint: oid.token_endpoint,
+    clientId,
+    oauthAccessToken: t.access_token,
+  });
+
+  if (!apiTokenResult.ok) {
+    return loginWithError(`api_token_exchange_${apiTokenResult.error}`, baseUrl);
+  }
+
+  const apiToken = apiTokenResult.tokens;
+
   await setCustomerAccountSession({
-    accessToken: t.access_token,
+    accessToken: apiToken.access_token,
     refreshToken: t.refresh_token,
-    expiresInSeconds: t.expires_in || 3600,
+    expiresInSeconds: apiToken.expires_in || t.expires_in || 3600,
     idToken: t.id_token,
   });
 

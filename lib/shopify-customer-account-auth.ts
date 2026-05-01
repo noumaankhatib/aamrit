@@ -120,6 +120,49 @@ export async function exchangeAuthorizationCode(params: {
   return { ok: true, tokens };
 }
 
+/**
+ * Exchanges the OAuth access_token (JWT) for a shcat_-prefixed Customer Account API token.
+ * Required because Shopify's GraphQL endpoint rejects raw OAuth tokens.
+ */
+export async function exchangeForCustomerApiToken(params: {
+  tokenEndpoint: string;
+  clientId: string;
+  oauthAccessToken: string;
+}): Promise<{ ok: true; tokens: TokenResponse } | { ok: false; error: string }> {
+  const body = new URLSearchParams();
+  body.append("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+  body.append("client_id", params.clientId);
+  body.append("audience", "30243aa5-17c1-465a-8493-944bcc4e88aa");
+  body.append("subject_token", params.oauthAccessToken);
+  body.append("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
+  body.append("scope", "https://api.customers.com/auth/customer.graphql");
+
+  const res = await fetch(params.tokenEndpoint, {
+    method: "POST",
+    headers: requestHeaders(),
+    body,
+  });
+
+  const text = await res.text();
+  if (!res.ok) {
+    try {
+      const j = JSON.parse(text) as { error_description?: string; error?: string };
+      return {
+        ok: false,
+        error: j.error_description || j.error || `Token-exchange failed (${res.status})`,
+      };
+    } catch {
+      return { ok: false, error: `Token-exchange failed (${res.status}): ${text.slice(0, 200)}` };
+    }
+  }
+
+  const tokens = JSON.parse(text) as TokenResponse;
+  if (!tokens.access_token) {
+    return { ok: false, error: "No access_token in token-exchange response" };
+  }
+  return { ok: true, tokens };
+}
+
 export async function refreshAccessToken(params: {
   tokenEndpoint: string;
   clientId: string;

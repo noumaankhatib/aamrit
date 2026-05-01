@@ -25,12 +25,11 @@ async function customerAccountFetch<T>(
     return { errors: [{ message: "Customer Account API discovery failed" }] };
   }
 
-  const prefixed = accessToken.startsWith("shcat_") ? accessToken : `shcat_${accessToken}`;
   const res = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: prefixed,
+      Authorization: accessToken,
       "User-Agent": "AamritStorefront/1.0",
     },
     body: JSON.stringify({ query, variables }),

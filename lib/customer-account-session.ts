@@ -8,6 +8,7 @@ import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
   refreshAccessToken,
+  exchangeForCustomerApiToken,
 } from "@/lib/shopify-customer-account-auth";
 
 export const CA_ACCESS_COOKIE = "shopify_ca_access";
@@ -105,13 +106,26 @@ export async function getCustomerAccountAccessToken(): Promise<string | null> {
   }
 
   const t = result.tokens;
+
+  const apiTokenResult = await exchangeForCustomerApiToken({
+    tokenEndpoint: oid.token_endpoint,
+    clientId,
+    oauthAccessToken: t.access_token,
+  });
+
+  if (!apiTokenResult.ok) {
+    await clearCustomerAccountCookies();
+    return null;
+  }
+
+  const apiToken = apiTokenResult.tokens;
   const prevId = jar.get(CA_ID_TOKEN_COOKIE)?.value;
   await setCustomerAccountSession({
-    accessToken: t.access_token,
+    accessToken: apiToken.access_token,
     refreshToken: t.refresh_token ?? refresh,
-    expiresInSeconds: t.expires_in,
+    expiresInSeconds: apiToken.expires_in || t.expires_in,
     idToken: t.id_token ?? prevId,
   });
 
-  return t.access_token;
+  return apiToken.access_token;
 }
