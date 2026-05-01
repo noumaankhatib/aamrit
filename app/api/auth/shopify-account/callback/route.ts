@@ -5,7 +5,6 @@ import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
   exchangeAuthorizationCode,
-  exchangeForCustomerApiToken,
   getOAuthCallbackUrl,
 } from "@/lib/shopify-customer-account-auth";
 import { setCustomerAccountSession } from "@/lib/customer-account-session";
@@ -65,23 +64,13 @@ export async function GET(request: Request) {
 
   const t = exchanged.tokens;
 
-  // Step 2: trade the OAuth JWT for an shcat_-prefixed Customer Account API token.
-  const apiTokenResult = await exchangeForCustomerApiToken({
-    tokenEndpoint: oid.token_endpoint,
-    clientId,
-    oauthAccessToken: t.access_token,
-  });
-
-  if (!apiTokenResult.ok) {
-    return loginWithError(`api_token_exchange_${apiTokenResult.error}`, baseUrl);
-  }
-
-  const apiToken = apiTokenResult.tokens;
-
+  // For headless Customer Account API, the OAuth access token from the 
+  // authorization code exchange works directly - no additional token exchange needed.
+  // The token-exchange grant (used by Hydrogen) is not supported by standard headless apps.
   await setCustomerAccountSession({
-    accessToken: apiToken.access_token,
+    accessToken: t.access_token,
     refreshToken: t.refresh_token,
-    expiresInSeconds: apiToken.expires_in || t.expires_in || 3600,
+    expiresInSeconds: t.expires_in || 3600,
     idToken: t.id_token,
   });
 
