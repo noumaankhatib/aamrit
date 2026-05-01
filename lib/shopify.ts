@@ -94,7 +94,7 @@ async function shopifyFetch<T>(
     );
   }
 
-  const token = getStorefrontToken(true);
+  const token = getStorefrontToken();
   
   const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
     method: "POST",

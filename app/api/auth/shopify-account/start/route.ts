@@ -49,10 +49,14 @@ export async function GET(request: Request) {
   const challenge = await generateCodeChallenge(verifier);
 
   const jar = await cookies();
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // Use 'none' sameSite for cross-site OAuth redirects (requires secure: true)
+  // This is needed because Shopify redirects back from a different domain
   const cookieOpts = {
     httpOnly: true as const,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    secure: isProduction,
+    sameSite: isProduction ? "none" as const : "lax" as const,
     path: "/",
     maxAge: TRANSIT_MAX_AGE,
   };

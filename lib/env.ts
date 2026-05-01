@@ -86,11 +86,10 @@ export function getAdminApiUrl(): string {
 }
 
 /**
- * Get the appropriate Storefront access token (prefer private for server-side)
+ * Get the Storefront access token.
+ * Note: The private token (shpat_*) is for Admin API, not Storefront API.
+ * Storefront API uses the public access token for both client and server contexts.
  */
-export function getStorefrontToken(preferPrivate = true): string {
-  if (preferPrivate && env.shopify.storefrontPrivateToken) {
-    return env.shopify.storefrontPrivateToken;
-  }
+export function getStorefrontToken(): string {
   return env.shopify.storefrontAccessToken;
 }
