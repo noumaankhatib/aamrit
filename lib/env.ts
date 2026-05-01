@@ -19,7 +19,15 @@ export const env = {
     shopId: process.env.SHOPIFY_SHOP_ID ?? "",
     customerAccountClientId: process.env.SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID ?? "",
     adminAccessToken: process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ?? "",
+    /** Legacy custom app Client ID OR Dev Dashboard app's Client ID (Settings in Dev Dashboard) */
     clientId: process.env.SHOPIFY_CLIENT_ID ?? "",
+    /** Optional override if different from SHOPIFY_CLIENT_ID */
+    adminClientId: process.env.SHOPIFY_ADMIN_CLIENT_ID ?? process.env.SHOPIFY_CLIENT_ID ?? "",
+    /**
+     * Dev Dashboard apps: Client secret (Settings in Dev Dashboard). Used with grant_type=client_credentials.
+     * @see https://shopify.dev/docs/apps/build/dev-dashboard/get-api-access-tokens
+     */
+    adminClientSecret: process.env.SHOPIFY_ADMIN_CLIENT_SECRET ?? "",
     
     /** Storefront API version - centralized for easy upgrades */
     apiVersion: "2024-10",
@@ -45,8 +53,11 @@ export const features = {
     !isPlaceholder(env.shopify.shopId) &&
     !isPlaceholder(env.shopify.customerAccountClientId),
   
-  /** Admin API is configured */
-  adminApi: !isPlaceholder(env.shopify.adminAccessToken),
+  /** Admin GraphQL via static shpat_* OR Dev Dashboard client credentials */
+  adminApi:
+    !isPlaceholder(env.shopify.storeDomain) &&
+    (!isPlaceholder(env.shopify.adminAccessToken) ||
+      (!isPlaceholder(env.shopify.adminClientSecret) && !isPlaceholder(env.shopify.adminClientId))),
 };
 
 /**

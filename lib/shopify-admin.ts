@@ -7,6 +7,55 @@ import { env, isAdminApiConfigured, getAdminApiUrl } from "@/lib/env";
 
 const ADMIN_API_URL = getAdminApiUrl();
 
+/** In-memory token cache (Dev Dashboard client_credentials; ~24h TTL) */
+let oauthTokenCache: { token: string; expiresAtMs: number } | null = null;
+
+async function getShopifyAdminAccessToken(): Promise<string> {
+  const { adminClientSecret, adminClientId, adminAccessToken, storeDomain } = env.shopify;
+  const shopHost = storeDomain.replace(/^https?:\/\//, "").split("/")[0] ?? "";
+
+  if (adminClientSecret && adminClientId) {
+    const now = Date.now();
+    if (oauthTokenCache && now < oauthTokenCache.expiresAtMs - 60_000) {
+      return oauthTokenCache.token;
+    }
+
+    const res = await fetch(`https://${shopHost}/admin/oauth/access_token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: adminClientId,
+        client_secret: adminClientSecret,
+      }),
+      cache: "no-store",
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Admin OAuth token failed (${res.status}): ${text.slice(0, 300)}`);
+    }
+
+    const json = JSON.parse(text) as { access_token?: string; expires_in?: number };
+    if (!json.access_token) {
+      throw new Error("Admin OAuth: no access_token in response");
+    }
+
+    const expiresInSec = json.expires_in ?? 86400;
+    oauthTokenCache = {
+      token: json.access_token,
+      expiresAtMs: now + expiresInSec * 1000,
+    };
+    return json.access_token;
+  }
+
+  if (adminAccessToken) {
+    return adminAccessToken;
+  }
+
+  throw new Error("Missing Admin API credentials");
+}
+
 // Order types
 export interface ShopifyOrder {
   id: string;
@@ -135,7 +184,7 @@ async function adminFetch<T>(
   
   if (!isAdminApiConfigured()) {
     throw new Error(
-      "Shopify Admin API credentials not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_ACCESS_TOKEN."
+      "Shopify Admin API not configured. Set SHOPIFY_STORE_DOMAIN and either SHOPIFY_ADMIN_ACCESS_TOKEN (legacy custom app), or SHOPIFY_ADMIN_CLIENT_SECRET + SHOPIFY_ADMIN_CLIENT_ID (or SHOPIFY_CLIENT_ID) for Dev Dashboard apps."
     );
   }
 
@@ -146,11 +195,12 @@ async function adminFetch<T>(
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     try {
+      const accessToken = await getShopifyAdminAccessToken();
       const response = await fetch(ADMIN_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Shopify-Access-Token": env.shopify.adminAccessToken,
+          "X-Shopify-Access-Token": accessToken,
         },
         body: JSON.stringify({ query, variables }),
         cache: "no-store",
