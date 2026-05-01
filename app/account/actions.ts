@@ -201,20 +201,28 @@ export async function recoverPasswordAction(
 // ============================================================================
 
 export async function getCurrentCustomer(): Promise<ShopifyCustomer | null> {
+  const result = await getCurrentCustomerWithError();
+  return result.customer;
+}
+
+export async function getCurrentCustomerWithError(): Promise<{
+  customer: ShopifyCustomer | null;
+  error: string | null;
+}> {
   const caToken = await getCustomerAccountAccessToken();
   if (caToken) {
     const { customer, error } = await fetchCustomerAccountProfile(caToken);
     if (error) {
       console.error("[getCurrentCustomer] Customer Account API failed:", error);
     }
-    return customer;
+    return { customer, error };
   }
 
   const legacy = await getCustomerToken();
-  if (!legacy) return null;
+  if (!legacy) return { customer: null, error: "no_session_token" };
 
   const { customer } = await getCustomer(legacy);
-  return customer;
+  return { customer, error: customer ? null : "legacy_storefront_fetch_failed" };
 }
 
 export async function updateProfileAction(

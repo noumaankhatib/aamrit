@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentCustomer, getMyOrders, isAuthenticated } from "./actions";
+import { getCurrentCustomerWithError, getMyOrders, isAuthenticated } from "./actions";
 import AccountTabs from "@/components/account/AccountTabs";
 
 export const dynamic = "force-dynamic";
@@ -12,11 +12,12 @@ export default async function AccountPage() {
     redirect("/account/login?error=not_authenticated");
   }
 
-  const customer = await getCurrentCustomer();
+  const { customer, error } = await getCurrentCustomerWithError();
 
   if (!customer) {
-    console.log("[/account] customer fetch returned null despite auth=true");
-    redirect("/account/login?error=customer_fetch_failed");
+    const reason = error ? encodeURIComponent(error.slice(0, 200)) : "unknown";
+    console.log("[/account] customer fetch failed:", error);
+    redirect(`/account/login?error=cust_${reason}`);
   }
 
   const orders = await getMyOrders(10).catch((e) => {
