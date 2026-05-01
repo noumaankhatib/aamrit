@@ -36,12 +36,18 @@ async function getGraphqlEndpoint(): Promise<string | null> {
   }
   
   const host = normalizeShopHost(env.shopify.publicStoreDomain || env.shopify.storeDomain);
-  if (!host) return null;
+  if (!host) {
+    console.error("[getGraphqlEndpoint] No shop host configured");
+    return null;
+  }
   
   const endpoint = await discoverCustomerAccountGraphqlUrl(host);
   if (endpoint) {
     cachedEndpoint = endpoint;
     endpointCacheTime = now;
+    console.log("[getGraphqlEndpoint] Discovered endpoint:", endpoint);
+  } else {
+    console.error("[getGraphqlEndpoint] Discovery failed for host:", host);
   }
   return endpoint;
 }
@@ -71,7 +77,7 @@ async function customerAccountFetch<T>(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: accessToken.startsWith("Bearer ") ? accessToken : `Bearer ${accessToken}`,
+        Authorization: accessToken,
         "User-Agent": "AamritStorefront/1.0",
         Origin: getAppOrigin(),
       },
@@ -84,7 +90,8 @@ async function customerAccountFetch<T>(
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "");
-      console.error(`[customerAccountFetch] HTTP ${res.status}:`, errorText.slice(0, 500));
+      console.error(`[customerAccountFetch] HTTP ${res.status} from ${endpoint}:`, errorText.slice(0, 500));
+      console.error(`[customerAccountFetch] Token (first 20 chars):`, accessToken.slice(0, 20) + "...");
       
       if (res.status === 401 || res.status === 403) {
         return { errors: [{ message: "Session expired. Please sign in again.", code: "UNAUTHORIZED" }] };

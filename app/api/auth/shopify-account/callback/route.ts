@@ -5,7 +5,6 @@ import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
   exchangeAuthorizationCode,
-  exchangeForCustomerApiToken,
   getOAuthCallbackUrl,
 } from "@/lib/shopify-customer-account-auth";
 import { setCustomerAccountSession } from "@/lib/customer-account-session";
@@ -28,6 +27,7 @@ export async function GET(request: Request) {
   const verifier = jar.get("shopify_oauth_verifier")?.value;
   const redirectPath = jar.get("shopify_oauth_redirect")?.value ?? "/account";
 
+  // Clear OAuth cookies
   jar.delete("shopify_oauth_state");
   jar.delete("shopify_oauth_verifier");
   jar.delete("shopify_oauth_nonce");
@@ -65,32 +65,14 @@ export async function GET(request: Request) {
 
   const t = exchanged.tokens;
 
-  // Exchange the OAuth token for a Customer Account API token using jwt-bearer grant.
-  // This is required because the raw OAuth token doesn't work with the Customer Account API.
-  const apiTokenResult = await exchangeForCustomerApiToken({
-    tokenEndpoint: oid.token_endpoint,
-    clientId,
-    oauthAccessToken: t.access_token,
+  // For public clients (web apps), the OAuth access token works directly
+  // with the Customer Account API - no additional token exchange needed.
+  await setCustomerAccountSession({
+    accessToken: t.access_token,
+    refreshToken: t.refresh_token,
+    expiresInSeconds: t.expires_in || 3600,
+    idToken: t.id_token,
   });
-
-  if (!apiTokenResult.ok) {
-    // If jwt-bearer exchange fails, try using the OAuth token directly as fallback
-    console.warn("[callback] JWT bearer exchange failed, using OAuth token directly:", apiTokenResult.error);
-    await setCustomerAccountSession({
-      accessToken: t.access_token,
-      refreshToken: t.refresh_token,
-      expiresInSeconds: t.expires_in || 3600,
-      idToken: t.id_token,
-    });
-  } else {
-    const apiToken = apiTokenResult.tokens;
-    await setCustomerAccountSession({
-      accessToken: apiToken.access_token,
-      refreshToken: t.refresh_token,
-      expiresInSeconds: apiToken.expires_in || t.expires_in || 3600,
-      idToken: t.id_token,
-    });
-  }
 
   const safePath =
     redirectPath.startsWith("/") && !redirectPath.startsWith("//")

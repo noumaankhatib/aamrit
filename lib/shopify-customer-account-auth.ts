@@ -82,22 +82,20 @@ export async function discoverOpenIdConfiguration(
 }
 
 /**
- * Get Customer Account API GraphQL endpoint.
+ * Get Customer Account API GraphQL endpoint from discovery.
+ * Always use discovery to get the correct API version.
  */
 export async function discoverCustomerAccountGraphqlUrl(shopHost: string): Promise<string | null> {
-  const shopId = getShopId();
-  
-  if (shopId) {
-    return `https://shopify.com/${shopId}/account/customer/api/2024-10/graphql`;
-  }
-  
   const url = `https://${shopHost}/.well-known/customer-account-api`;
   try {
     const res = await fetch(url, {
       headers: { Accept: "application/json" },
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("[discoverCustomerAccountGraphqlUrl] Discovery failed:", res.status);
+      return null;
+    }
     const data = (await res.json()) as { graphql_api?: string };
     return data.graphql_api ?? null;
   } catch (error) {
