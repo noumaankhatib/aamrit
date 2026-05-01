@@ -134,7 +134,7 @@ export async function exchangeForCustomerApiToken(params: {
   body.append("client_id", params.clientId);
   body.append("audience", "30243aa5-17c1-465a-8493-944bcc4e88aa");
   body.append("assertion", params.oauthAccessToken);
-  body.append("scope", "https://api.customers.com/auth/customer.graphql");
+  body.append("scope", "customer-account-api:full");
 
   const res = await fetch(params.tokenEndpoint, {
     method: "POST",
