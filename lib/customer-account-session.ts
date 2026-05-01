@@ -9,6 +9,7 @@ import {
   normalizeShopHost,
   discoverOpenIdConfiguration,
   refreshAccessToken,
+  exchangeForCustomerApiToken,
 } from "@/lib/shopify-customer-account-auth";
 
 export const CA_ACCESS_COOKIE = "shopify_ca_access";
@@ -183,16 +184,34 @@ export async function getCustomerAccountAccessToken(): Promise<string | null> {
     const t = refreshResult.tokens;
     const prevId = jar.get(CA_ID_TOKEN_COOKIE)?.value;
     
-    // For headless Customer Account API, the refreshed OAuth access token 
-    // works directly - no additional token exchange needed.
+    // Try to exchange for Customer Account API token
+    const apiTokenResult = await exchangeForCustomerApiToken({
+      tokenEndpoint: oid.token_endpoint,
+      clientId,
+      oauthAccessToken: t.access_token,
+    });
+
+    if (!apiTokenResult.ok) {
+      // Fallback to using OAuth token directly
+      console.warn("[getCustomerAccountAccessToken] JWT bearer exchange failed, using OAuth token");
+      await setCustomerAccountSession({
+        accessToken: t.access_token,
+        refreshToken: t.refresh_token ?? refresh,
+        expiresInSeconds: t.expires_in,
+        idToken: t.id_token ?? prevId,
+      });
+      return t.access_token;
+    }
+
+    const apiToken = apiTokenResult.tokens;
     await setCustomerAccountSession({
-      accessToken: t.access_token,
+      accessToken: apiToken.access_token,
       refreshToken: t.refresh_token ?? refresh,
-      expiresInSeconds: t.expires_in,
+      expiresInSeconds: apiToken.expires_in || t.expires_in,
       idToken: t.id_token ?? prevId,
     });
 
-    return t.access_token;
+    return apiToken.access_token;
   } catch (error) {
     console.error("[getCustomerAccountAccessToken] Unexpected error:", error);
     return expiresMs > now ? access : null;

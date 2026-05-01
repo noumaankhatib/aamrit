@@ -170,26 +170,19 @@ export async function exchangeAuthorizationCode(params: {
 }
 
 /**
- * Exchanges the OAuth access_token (JWT) for a shcat_-prefixed Customer Account API token.
- * Required because Shopify's GraphQL endpoint rejects raw OAuth tokens.
+ * Exchange OAuth access token for Customer Account API token using jwt-bearer grant.
+ * This is required for headless Customer Account API access.
+ * The jwt-bearer grant is supported (unlike token-exchange which is Hydrogen-only).
  */
 export async function exchangeForCustomerApiToken(params: {
   tokenEndpoint: string;
   clientId: string;
   oauthAccessToken: string;
 }): Promise<{ ok: true; tokens: TokenResponse } | { ok: false; error: string }> {
-  // Match Shopify Hydrogen's exact token-exchange request shape.
-  // Reference: github.com/Shopify/hydrogen packages/hydrogen/src/customer/auth.helpers.ts
-  // Key gotchas: grant_type is token-exchange (not jwt-bearer);
-  // field is "scopes" (plural, NOT "scope"); audience is the static
-  // CUSTOMER_API_CLIENT_ID UUID; Origin header must be the app origin.
   const body = new URLSearchParams();
-  body.append("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+  body.append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
   body.append("client_id", params.clientId);
-  body.append("audience", "30243aa5-17c1-465a-8493-944bcc4e88aa");
-  body.append("subject_token", params.oauthAccessToken);
-  body.append("subject_token_type", "urn:ietf:params:oauth:token-type:access_token");
-  body.append("scopes", "https://api.customers.com/auth/customer.graphql");
+  body.append("assertion", params.oauthAccessToken);
 
   const res = await fetch(params.tokenEndpoint, {
     method: "POST",
@@ -203,16 +196,16 @@ export async function exchangeForCustomerApiToken(params: {
       const j = JSON.parse(text) as { error_description?: string; error?: string };
       return {
         ok: false,
-        error: j.error_description || j.error || `Token-exchange failed (${res.status})`,
+        error: j.error_description || j.error || `JWT bearer exchange failed (${res.status})`,
       };
     } catch {
-      return { ok: false, error: `Token-exchange failed (${res.status}): ${text.slice(0, 200)}` };
+      return { ok: false, error: `JWT bearer exchange failed (${res.status}): ${text.slice(0, 200)}` };
     }
   }
 
   const tokens = JSON.parse(text) as TokenResponse;
   if (!tokens.access_token) {
-    return { ok: false, error: "No access_token in token-exchange response" };
+    return { ok: false, error: "No access_token in jwt-bearer response" };
   }
   return { ok: true, tokens };
 }
