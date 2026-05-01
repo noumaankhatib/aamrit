@@ -82,9 +82,7 @@ const CUSTOMER_QUERY = `
         address1
         address2
         city
-        province
         territoryCode
-        country
         zip
         zoneCode
         phoneNumber
@@ -99,9 +97,7 @@ const CUSTOMER_QUERY = `
             address1
             address2
             city
-            province
             territoryCode
-            country
             zip
             zoneCode
             phoneNumber
@@ -315,9 +311,7 @@ const ORDER_DETAIL_QUERY = `
         address1
         address2
         city
-        province
         territoryCode
-        country
         zip
         zoneCode
         phoneNumber
