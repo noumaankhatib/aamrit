@@ -12,19 +12,20 @@ export async function fulfillOrderAction(
   const trackingUrl = formData.get("trackingUrl") as string | null;
 
   try {
-    const success = await fulfillOrder(
+    const result = await fulfillOrder(
       orderId,
       trackingCompany || undefined,
       trackingNumber || undefined,
       trackingUrl || undefined
     );
 
-    if (success) {
+    if (result.success) {
       revalidatePath("/admin/orders");
+      revalidatePath(`/admin/orders/${orderId.split("/").pop()}`);
       return { success: true };
     }
 
-    return { success: false, error: "Failed to fulfill order" };
+    return { success: false, error: result.error || "Failed to fulfill order" };
   } catch (error) {
     console.error("Fulfill order error:", error);
     return {

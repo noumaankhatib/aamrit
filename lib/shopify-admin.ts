@@ -503,44 +503,131 @@ export async function fulfillOrder(
   trackingCompany?: string,
   trackingNumber?: string,
   trackingUrl?: string
-): Promise<boolean> {
-  const query = `
-    mutation FulfillOrder($input: FulfillmentCreateV2Input!) {
-      fulfillmentCreateV2(fulfillment: $input) {
-        fulfillment {
-          id
-          status
-        }
-        userErrors {
-          field
-          message
+): Promise<{ success: boolean; error?: string }> {
+  const getFulfillmentOrderQuery = `
+    query GetFulfillmentOrders($orderId: ID!) {
+      order(id: $orderId) {
+        id
+        fulfillmentOrders(first: 10) {
+          edges {
+            node {
+              id
+              status
+              lineItems(first: 50) {
+                edges {
+                  node {
+                    id
+                    remainingQuantity
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
   `;
 
   try {
-    const trackingInfo = trackingNumber
-      ? [{ company: trackingCompany, number: trackingNumber, url: trackingUrl }]
-      : [];
+    const orderData = await adminFetch<{
+      order: {
+        fulfillmentOrders: {
+          edges: {
+            node: {
+              id: string;
+              status: string;
+              lineItems: {
+                edges: {
+                  node: {
+                    id: string;
+                    remainingQuantity: number;
+                  };
+                }[];
+              };
+            };
+          }[];
+        };
+      };
+    }>(getFulfillmentOrderQuery, { orderId });
 
-    const data = await adminFetch<any>(query, {
-      input: {
-        orderId,
-        trackingInfo,
-        notifyCustomer: true,
-      },
-    });
+    const fulfillmentOrders = orderData.order?.fulfillmentOrders?.edges || [];
+    
+    const openFulfillmentOrder = fulfillmentOrders.find(
+      (fo) => fo.node.status === "OPEN" || fo.node.status === "IN_PROGRESS"
+    );
 
-    if (data.fulfillmentCreateV2?.userErrors?.length) {
-      console.error("Fulfillment errors:", data.fulfillmentCreateV2.userErrors);
-      return false;
+    if (!openFulfillmentOrder) {
+      return { success: false, error: "No open fulfillment orders found. Order may already be fulfilled." };
     }
 
-    return true;
+    const lineItemsToFulfill = openFulfillmentOrder.node.lineItems.edges
+      .filter((li) => li.node.remainingQuantity > 0)
+      .map((li) => ({
+        id: li.node.id,
+        quantity: li.node.remainingQuantity,
+      }));
+
+    if (lineItemsToFulfill.length === 0) {
+      return { success: false, error: "No items remaining to fulfill." };
+    }
+
+    const fulfillmentCreateQuery = `
+      mutation FulfillmentCreateV2($fulfillment: FulfillmentV2Input!) {
+        fulfillmentCreateV2(fulfillment: $fulfillment) {
+          fulfillment {
+            id
+            status
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const trackingInfo = trackingNumber
+      ? { company: trackingCompany || null, number: trackingNumber, url: trackingUrl || null }
+      : null;
+
+    const fulfillmentInput: Record<string, unknown> = {
+      lineItemsByFulfillmentOrder: [
+        {
+          fulfillmentOrderId: openFulfillmentOrder.node.id,
+          fulfillmentOrderLineItems: lineItemsToFulfill,
+        },
+      ],
+      notifyCustomer: true,
+    };
+
+    if (trackingInfo) {
+      fulfillmentInput.trackingInfo = trackingInfo;
+    }
+
+    const data = await adminFetch<{
+      fulfillmentCreateV2: {
+        fulfillment: { id: string; status: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(fulfillmentCreateQuery, { fulfillment: fulfillmentInput });
+
+    if (data.fulfillmentCreateV2?.userErrors?.length) {
+      const error = data.fulfillmentCreateV2.userErrors[0];
+      console.error("Fulfillment errors:", error);
+      return { success: false, error: error.message };
+    }
+
+    if (!data.fulfillmentCreateV2?.fulfillment) {
+      return { success: false, error: "Failed to create fulfillment" };
+    }
+
+    return { success: true };
   } catch (error) {
     console.error("Error fulfilling order:", error);
-    return false;
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to fulfill order" 
+    };
   }
 }
 
