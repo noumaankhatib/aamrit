@@ -94,6 +94,12 @@ export async function isAuthenticated(): Promise<boolean> {
   return true;
 }
 
+/** Check if user is using Customer Account API (vs legacy storefront token) */
+export async function isUsingCustomerAccountApi(): Promise<boolean> {
+  const ca = await getCustomerAccountAccessToken();
+  return !!ca;
+}
+
 // ============================================================================
 // Authentication Actions
 // ============================================================================
@@ -240,7 +246,6 @@ export async function updateProfileAction(
     const result = await updateCustomerAccountProfile(caToken, {
       firstName: firstName || undefined,
       lastName: lastName || undefined,
-      phoneNumber: phone || undefined,
     });
     if (!result.ok) {
       return { error: result.error ?? "Failed to update profile", success: false };

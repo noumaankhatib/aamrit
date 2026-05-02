@@ -12,6 +12,7 @@ interface AccountTabsProps {
   customer: ShopifyCustomer;
   orders: ShopifyOrder[];
   isAdmin?: boolean;
+  isCustomerAccountUser?: boolean;
 }
 
 type Tab = "orders" | "profile" | "addresses" | "admin";
@@ -22,7 +23,7 @@ function isTab(v: string | null): v is Tab {
   return v !== null && (VALID_TABS as string[]).includes(v);
 }
 
-export default function AccountTabs({ customer, orders, isAdmin = false }: AccountTabsProps) {
+export default function AccountTabs({ customer, orders, isAdmin = false, isCustomerAccountUser = false }: AccountTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = isTab(searchParams.get("tab")) ? (searchParams.get("tab") as Tab) : "orders";
@@ -209,23 +210,55 @@ export default function AccountTabs({ customer, orders, isAdmin = false }: Accou
                 <label htmlFor="phone" className="block text-sm font-medium text-charcoal mb-2">
                   Mobile number
                 </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-charcoal/60 text-sm">
-                    <span>+91</span>
-                    <span className="text-charcoal/30">|</span>
-                  </div>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    defaultValue={customer.phone?.replace(/^\+91\s?/, "") || ""}
-                    placeholder="9876543210"
-                    pattern="[0-9]{10}"
-                    maxLength={10}
-                    className="w-full pl-16 pr-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
-                  />
-                </div>
-                <p className="mt-1.5 text-xs text-charcoal/50">Used for order updates and delivery notifications</p>
+                {isCustomerAccountUser ? (
+                  <>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        defaultValue={customer.phone || ""}
+                        readOnly
+                        className="w-full px-4 py-3 rounded-xl border border-cream-200 bg-cream-50 text-charcoal/70 cursor-not-allowed"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <svg className="w-4 h-4 text-charcoal/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="mt-1.5 text-xs text-charcoal/50">
+                      Phone is linked to your delivery address.{" "}
+                      <button 
+                        type="button" 
+                        onClick={() => selectTab("addresses")} 
+                        className="text-saffron hover:underline"
+                      >
+                        Update in Addresses
+                      </button>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-charcoal/60 text-sm">
+                        <span>+91</span>
+                        <span className="text-charcoal/30">|</span>
+                      </div>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        defaultValue={customer.phone?.replace(/^\+91\s?/, "") || ""}
+                        placeholder="9876543210"
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        className="w-full pl-16 pr-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
+                      />
+                    </div>
+                    <p className="mt-1.5 text-xs text-charcoal/50">Used for order updates and delivery notifications</p>
+                  </>
+                )}
               </div>
 
               <div className="flex items-start gap-3 p-4 bg-cream-50 rounded-xl">

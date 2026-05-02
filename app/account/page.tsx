@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentCustomerWithError, getMyOrders, isAuthenticated } from "./actions";
+import { getCurrentCustomerWithError, getMyOrders, isAuthenticated, isUsingCustomerAccountApi } from "./actions";
 import AccountTabs from "@/components/account/AccountTabs";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +33,7 @@ export default async function AccountPage() {
   });
 
   const isAdmin = isAdminEmail(customer.email);
+  const isCustomerAccountUser = await isUsingCustomerAccountApi();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
@@ -84,7 +85,7 @@ export default async function AccountPage() {
 
         {/* Content */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <AccountTabs customer={customer} orders={orders} isAdmin={isAdmin} />
+          <AccountTabs customer={customer} orders={orders} isAdmin={isAdmin} isCustomerAccountUser={isCustomerAccountUser} />
         </div>
       </div>
   );
