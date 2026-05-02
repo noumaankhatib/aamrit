@@ -22,7 +22,7 @@ const MILESTONES = [
   {
     year: "2005",
     title: "Raigad expansion",
-    body: "157 acres in Chordhe village with 9,000 trees 🌳",
+    body: "157 acres in Chordhe village with 9,000 mango trees.",
     icon: "i-pin",
     metric: "Chordhe · 157 ac",
   },
@@ -52,7 +52,7 @@ const MILESTONES = [
     year: "Today",
     title: "Aamrit D2C",
     body:
-      "Direct to home — 12 farms spread across 600+ acres with 22,000+ mango trees 🌳",
+      "Direct to home — 12 farms spread across 600+ acres with 22,000+ mango trees.",
     icon: "i-mango",
     metric: "22,000+ trees",
   },
@@ -111,31 +111,33 @@ export default function Journey() {
           variants={fadeUp}
           className="text-center max-w-5xl mx-auto px-2 sm:px-0"
         >
-          <span className="gold-rule text-[10px] xs:text-[11px] sm:text-xs">
-            Our Journey
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100/80 to-orange-100/80 border border-amber-200/50 shadow-sm backdrop-blur-sm">
+            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-xs sm:text-sm font-semibold text-amber-800 tracking-wide uppercase">Our Journey</span>
           </span>
-          <h2 className="mt-5 font-serif text-3xl xs:text-4xl sm:text-[2.625rem] lg:text-5xl text-charcoal leading-[1.12] tracking-[-0.025em]">
+          <h2 className="mt-6 font-serif text-3xl xs:text-4xl sm:text-[2.625rem] lg:text-5xl text-charcoal leading-[1.15] tracking-tight">
             From small family farm to{" "}
-            <span className="grad-text-static font-semibold">
-              the largest Alphonso mango{" "}
-              <span aria-hidden="true" className="inline-block align-baseline">
-                🥭
-              </span>{" "}
-              cultivators
+            <span className="relative inline-block">
+              <span className="relative z-10 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 bg-clip-text text-transparent font-semibold">
+                the largest Alphonso mango cultivators
+              </span>
+              <span className="absolute -bottom-1 left-0 right-0 h-3 bg-gradient-to-r from-amber-200/50 via-orange-200/50 to-amber-200/50 -skew-x-2 rounded-sm" />
             </span>
             .
           </h2>
-          <p className="mt-5 text-charcoal/65 text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl mx-auto">
+          <p className="mt-6 text-charcoal/70 text-base sm:text-lg lg:text-xl leading-relaxed max-w-3xl mx-auto">
             40+ years, 2 districts, 12 farms. The standards never changed.
           </p>
 
           {/* Decorative flourish */}
-          <div className="mt-7 flex items-center justify-center gap-3">
-            <span className="h-px w-14 bg-gradient-to-r from-transparent to-saffron/50 rounded-full" />
-            <svg className="w-4 h-4 text-saffron" aria-hidden="true">
-              <use href="#i-leaf" />
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <span className="h-px w-16 bg-gradient-to-r from-transparent to-amber-400/60 rounded-full" />
+            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
-            <span className="h-px w-14 bg-gradient-to-l from-transparent to-saffron/50 rounded-full" />
+            <span className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400/60 rounded-full" />
           </div>
         </motion.div>
 

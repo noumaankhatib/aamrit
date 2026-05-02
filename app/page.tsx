@@ -2,6 +2,7 @@ import ShopNav from "@/components/shop/ShopNav";
 import Hero from "@/components/Hero";
 import TrustStrip from "@/components/TrustStrip";
 import About from "@/components/About";
+import MangoVarieties from "@/components/MangoVarieties";
 import Journey from "@/components/Journey";
 import FarmLocations from "@/components/FarmLocations";
 import OrchardStory from "@/components/OrchardStory";
@@ -46,6 +47,7 @@ export default async function HomePage() {
         <Packaging products={products} />
         <TrustStrip />
         <About />
+        <MangoVarieties />
         <Journey />
         <FarmLocations />
         <OrchardStory />
