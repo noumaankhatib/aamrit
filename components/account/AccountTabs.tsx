@@ -11,17 +11,18 @@ import AddressManager from "@/components/account/AddressManager";
 interface AccountTabsProps {
   customer: ShopifyCustomer;
   orders: ShopifyOrder[];
+  isAdmin?: boolean;
 }
 
-type Tab = "orders" | "profile" | "addresses";
+type Tab = "orders" | "profile" | "addresses" | "admin";
 
-const VALID_TABS: Tab[] = ["orders", "profile", "addresses"];
+const VALID_TABS: Tab[] = ["orders", "profile", "addresses", "admin"];
 
 function isTab(v: string | null): v is Tab {
   return v !== null && (VALID_TABS as string[]).includes(v);
 }
 
-export default function AccountTabs({ customer, orders }: AccountTabsProps) {
+export default function AccountTabs({ customer, orders, isAdmin = false }: AccountTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = isTab(searchParams.get("tab")) ? (searchParams.get("tab") as Tab) : "orders";
@@ -44,38 +45,62 @@ export default function AccountTabs({ customer, orders }: AccountTabsProps) {
     success: false,
   });
 
-  const tabs: { id: Tab; label: string; count?: number }[] = [
+  const tabs: { id: Tab; label: string; count?: number; adminOnly?: boolean }[] = [
     { id: "orders", label: "Orders", count: orders.length },
     { id: "profile", label: "Profile" },
     { id: "addresses", label: "Addresses", count: customer.addresses.length },
+    { id: "admin", label: "Admin", adminOnly: true },
   ];
 
   return (
     <div>
       {/* Tab Navigation */}
       <div className="flex gap-1 p-1 bg-cream-100/50 rounded-xl mb-8">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => selectTab(tab.id)}
-            className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
-              activeTab === tab.id
-                ? "bg-white text-charcoal shadow-sm"
-                : "text-charcoal/60 hover:text-charcoal hover:bg-white/50"
-            }`}
-          >
-            {tab.label}
-            {tab.count !== undefined && tab.count > 0 && (
-              <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.id
-                  ? "bg-gold/10 text-saffron"
-                  : "bg-charcoal/10 text-charcoal/60"
-              }`}>
-                {tab.count}
+        {tabs.map((tab) => {
+          if (tab.adminOnly && !isAdmin) {
+            return null;
+          }
+
+          const isAdminTab = tab.id === "admin";
+          const isDisabled = isAdminTab && !isAdmin;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => !isDisabled && selectTab(tab.id)}
+              disabled={isDisabled}
+              className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
+                isDisabled
+                  ? "text-charcoal/30 cursor-not-allowed"
+                  : activeTab === tab.id
+                  ? isAdminTab
+                    ? "bg-gradient-to-r from-gold to-saffron text-white shadow-sm"
+                    : "bg-white text-charcoal shadow-sm"
+                  : "text-charcoal/60 hover:text-charcoal hover:bg-white/50"
+              }`}
+            >
+              <span className="inline-flex items-center gap-1.5">
+                {isAdminTab && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                )}
+                {tab.label}
               </span>
-            )}
-          </button>
-        ))}
+              {tab.count !== undefined && tab.count > 0 && (
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  activeTab === tab.id
+                    ? isAdminTab
+                      ? "bg-white/20 text-white"
+                      : "bg-gold/10 text-saffron"
+                    : "bg-charcoal/10 text-charcoal/60"
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Orders Tab */}
@@ -221,6 +246,92 @@ export default function AccountTabs({ customer, orders }: AccountTabsProps) {
 
       {/* Addresses Tab */}
       {activeTab === "addresses" && <AddressManager customer={customer} />}
+
+      {/* Admin Tab */}
+      {activeTab === "admin" && isAdmin && (
+        <div className="max-w-2xl">
+          <div className="bg-gradient-to-br from-charcoal via-charcoal-700 to-charcoal-900 rounded-2xl p-6 sm:p-8 text-white">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold to-saffron flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="font-serif text-xl">Admin Access</h2>
+                <p className="text-white/60 text-sm">You have administrator privileges</p>
+              </div>
+            </div>
+
+            <p className="text-white/70 text-sm mb-6">
+              As an admin, you have access to the full admin panel where you can manage orders, 
+              view analytics, manage products, and configure store settings.
+            </p>
+
+            <div className="grid gap-3">
+              <Link
+                href="/admin"
+                className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-gold/30 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-white">Admin Dashboard</p>
+                  <p className="text-sm text-white/50">View stats and recent orders</p>
+                </div>
+                <svg className="w-5 h-5 text-white/30 group-hover:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+
+              <Link
+                href="/admin/orders"
+                className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-gold/30 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-white">Manage Orders</p>
+                  <p className="text-sm text-white/50">View and fulfill customer orders</p>
+                </div>
+                <svg className="w-5 h-5 text-white/30 group-hover:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+
+              <Link
+                href="/admin/products"
+                className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-gold/30 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold group-hover:bg-gold/30 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-white">Products</p>
+                  <p className="text-sm text-white/50">Manage product inventory</p>
+                </div>
+                <svg className="w-5 h-5 text-white/30 group-hover:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <p className="text-xs text-white/40">
+                Admin access is granted based on your email address. Contact the store owner if you need your access modified.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

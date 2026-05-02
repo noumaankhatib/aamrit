@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getOrders, getOrderStats, formatMoney, formatDate } from "@/lib/shopify-admin";
+import { getOrders, getOrderStats, formatMoney } from "@/lib/shopify-admin";
 
 function StatCard({
   title,
@@ -7,25 +7,36 @@ function StatCard({
   subtitle,
   icon,
   href,
+  highlight,
 }: {
   title: string;
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
   href?: string;
+  highlight?: boolean;
 }) {
   const content = (
-    <div className="bg-[#222] border border-[#333] rounded-xl p-6 hover:border-[#444] transition-colors">
+    <div className={`relative bg-white border rounded-2xl p-6 transition-all hover:shadow-e2 group cursor-pointer ${
+      highlight ? "border-saffron/40" : "border-cream-200 hover:border-gold/40"
+    }`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-[#888]">{title}</p>
-          <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-          {subtitle && <p className="mt-1 text-sm text-[#666]">{subtitle}</p>}
+          <p className="text-sm font-medium text-charcoal/60">{title}</p>
+          <p className="mt-2 text-3xl font-serif font-semibold text-charcoal">{value}</p>
+          {subtitle && <p className="mt-1 text-sm text-charcoal/50">{subtitle}</p>}
         </div>
-        <div className="w-10 h-10 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-[#888]">
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+          highlight 
+            ? "bg-saffron/10 text-saffron group-hover:bg-saffron/20" 
+            : "bg-gold/10 text-gold group-hover:bg-gold/20"
+        }`}>
           {icon}
         </div>
       </div>
+      {highlight && (
+        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-saffron animate-pulse" />
+      )}
     </div>
   );
 
@@ -50,28 +61,28 @@ function RecentOrderRow({
   };
 }) {
   return (
-    <tr className="border-b border-[#333] hover:bg-[#252525] transition-colors">
-      <td className="py-3 px-4">
+    <tr className="border-b border-cream-100 hover:bg-cream-50/50 transition-colors">
+      <td className="py-3.5 px-4">
         <Link
           href={`/admin/orders/${order.orderNumber}`}
-          className="text-[#6d9eff] hover:underline font-medium"
+          className="text-saffron hover:text-saffron-700 font-medium"
         >
           {order.name}
         </Link>
       </td>
-      <td className="py-3 px-4 text-[#b5b5b5]">{order.customerName}</td>
-      <td className="py-3 px-4">
+      <td className="py-3.5 px-4 text-charcoal/70">{order.customerName}</td>
+      <td className="py-3.5 px-4">
         <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
             order.fulfillmentStatus.toLowerCase() === "fulfilled"
-              ? "bg-[#1a4d2e] text-[#4ade80]"
-              : "bg-[#4d3800] text-[#fbbf24]"
+              ? "bg-leaf/10 text-leaf-700"
+              : "bg-gold/10 text-saffron"
           }`}
         >
           {order.fulfillmentStatus.replace(/_/g, " ")}
         </span>
       </td>
-      <td className="py-3 px-4 text-right font-medium text-white">
+      <td className="py-3.5 px-4 text-right font-medium text-charcoal">
         {formatMoney(order.total, order.currency)}
       </td>
     </tr>
@@ -85,17 +96,17 @@ export default async function AdminDashboard() {
   ]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-        <p className="text-[#888] mt-1">Welcome back to your store admin</p>
+        <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-charcoal">Dashboard</h1>
+        <p className="text-charcoal/60 mt-1">Welcome back to your store admin</p>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          title="Total orders"
+          title="Total Orders"
           value={stats.totalOrders}
           subtitle="All time"
           href="/admin/orders"
@@ -120,6 +131,7 @@ export default async function AdminDashboard() {
           value={stats.unfulfilled}
           subtitle="Need attention"
           href="/admin/orders?status=open"
+          highlight={stats.unfulfilled > 0}
           icon={
             <svg
               className="w-5 h-5"
@@ -137,7 +149,7 @@ export default async function AdminDashboard() {
           }
         />
         <StatCard
-          title="Total revenue"
+          title="Total Revenue"
           value={formatMoney(stats.totalRevenue, stats.currency)}
           subtitle="All orders"
           icon={
@@ -157,7 +169,7 @@ export default async function AdminDashboard() {
           }
         />
         <StatCard
-          title="Avg order value"
+          title="Avg Order Value"
           value={
             stats.totalOrders > 0
               ? formatMoney(
@@ -186,50 +198,52 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Recent orders */}
-      <div className="bg-[#222] border border-[#333] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#333]">
-          <h2 className="font-medium text-white">Recent orders</h2>
+      <div className="bg-white border border-cream-200 rounded-2xl overflow-hidden shadow-soft">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-cream-100">
+          <h2 className="font-serif font-semibold text-charcoal">Recent Orders</h2>
           <Link
             href="/admin/orders"
-            className="text-sm text-[#6d9eff] hover:underline"
+            className="text-sm text-saffron hover:text-saffron-700 font-medium"
           >
-            View all
+            View all →
           </Link>
         </div>
         {orders.length === 0 ? (
-          <div className="py-12 text-center">
-            <svg
-              className="w-12 h-12 mx-auto text-[#444] mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            <p className="text-[#888]">No orders yet</p>
-            <p className="text-sm text-[#666] mt-1">
+          <div className="py-14 text-center">
+            <div className="w-16 h-16 mx-auto rounded-full bg-cream-100 flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-charcoal/30"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </div>
+            <p className="text-charcoal/70 font-medium">No orders yet</p>
+            <p className="text-sm text-charcoal/50 mt-1">
               Orders will appear here once customers make purchases.
             </p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#333] bg-[#1a1a1a]">
-                <th className="py-3 px-4 text-left text-xs font-medium text-[#888] uppercase tracking-wider">
+              <tr className="border-b border-cream-100 bg-cream-50/50">
+                <th className="py-3 px-4 text-left text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
                   Order
                 </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-[#888] uppercase tracking-wider">
+                <th className="py-3 px-4 text-left text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-[#888] uppercase tracking-wider">
+                <th className="py-3 px-4 text-left text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="py-3 px-4 text-right text-xs font-medium text-[#888] uppercase tracking-wider">
+                <th className="py-3 px-4 text-right text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
                   Total
                 </th>
               </tr>
@@ -249,9 +263,9 @@ export default async function AdminDashboard() {
           href={`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/orders`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-4 p-4 bg-[#222] border border-[#333] rounded-xl hover:border-[#444] transition-colors group"
+          className="flex items-center gap-4 p-5 bg-white border border-cream-200 rounded-2xl hover:border-gold/40 hover:shadow-e1 transition-all group cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-[#888] group-hover:text-white transition-colors">
+          <div className="w-11 h-11 rounded-xl bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/20 transition-colors">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -267,8 +281,8 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-white">Shopify Admin</p>
-            <p className="text-sm text-[#888]">Full admin access</p>
+            <p className="font-medium text-charcoal">Shopify Admin</p>
+            <p className="text-sm text-charcoal/50">Full admin access</p>
           </div>
         </a>
 
@@ -276,9 +290,9 @@ export default async function AdminDashboard() {
           href={`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/products`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-4 p-4 bg-[#222] border border-[#333] rounded-xl hover:border-[#444] transition-colors group"
+          className="flex items-center gap-4 p-5 bg-white border border-cream-200 rounded-2xl hover:border-gold/40 hover:shadow-e1 transition-all group cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-[#888] group-hover:text-white transition-colors">
+          <div className="w-11 h-11 rounded-xl bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/20 transition-colors">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -294,16 +308,16 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-white">Manage Products</p>
-            <p className="text-sm text-[#888]">Add or edit products</p>
+            <p className="font-medium text-charcoal">Manage Products</p>
+            <p className="text-sm text-charcoal/50">Add or edit products</p>
           </div>
         </a>
 
         <Link
           href="/"
-          className="flex items-center gap-4 p-4 bg-[#222] border border-[#333] rounded-xl hover:border-[#444] transition-colors group"
+          className="flex items-center gap-4 p-5 bg-white border border-cream-200 rounded-2xl hover:border-gold/40 hover:shadow-e1 transition-all group cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#2a2a2a] flex items-center justify-center text-[#888] group-hover:text-white transition-colors">
+          <div className="w-11 h-11 rounded-xl bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/20 transition-colors">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -325,8 +339,8 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-white">View Store</p>
-            <p className="text-sm text-[#888]">See customer view</p>
+            <p className="font-medium text-charcoal">View Store</p>
+            <p className="text-sm text-charcoal/50">See customer view</p>
           </div>
         </Link>
       </div>

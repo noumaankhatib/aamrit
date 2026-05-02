@@ -36,7 +36,7 @@ export function FulfillOrderForm({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="px-3 py-1.5 text-sm font-medium text-white bg-[#1a4d2e] hover:bg-[#22633a] rounded-lg transition-colors"
+        className="px-4 py-2 text-sm font-medium text-white bg-leaf hover:bg-leaf-600 rounded-xl transition-colors"
       >
         Mark as fulfilled
       </button>
@@ -44,13 +44,13 @@ export function FulfillOrderForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-[#222] border border-[#333] rounded-xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#333]">
-          <h3 className="font-medium text-white">Fulfill order #{orderNumber}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm">
+      <div className="bg-white border border-cream-200 rounded-2xl w-full max-w-md mx-4 shadow-e3">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-cream-100">
+          <h3 className="font-serif font-semibold text-charcoal">Fulfill order #{orderNumber}</h3>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-[#888] hover:text-white transition-colors"
+            className="text-charcoal/40 hover:text-charcoal transition-colors"
           >
             <svg
               className="w-5 h-5"
@@ -67,47 +67,47 @@ export function FulfillOrderForm({
             </svg>
           </button>
         </div>
-        <form action={handleSubmit} className="p-4">
+        <form action={handleSubmit} className="p-5">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#888] mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Tracking company (optional)
               </label>
               <input
                 type="text"
                 name="trackingCompany"
                 placeholder="e.g., Delhivery, BlueDart"
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold text-sm"
+                className="w-full px-4 py-2.5 bg-cream-50 border border-cream-200 rounded-xl text-charcoal placeholder-charcoal/40 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#888] mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Tracking number (optional)
               </label>
               <input
                 type="text"
                 name="trackingNumber"
                 placeholder="e.g., AWB123456789"
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold text-sm"
+                className="w-full px-4 py-2.5 bg-cream-50 border border-cream-200 rounded-xl text-charcoal placeholder-charcoal/40 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#888] mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Tracking URL (optional)
               </label>
               <input
                 type="url"
                 name="trackingUrl"
                 placeholder="https://..."
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#444] rounded-lg text-white placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold text-sm"
+                className="w-full px-4 py-2.5 bg-cream-50 border border-cream-200 rounded-xl text-charcoal placeholder-charcoal/40 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold text-sm"
               />
             </div>
-            <label className="flex items-center gap-2 text-sm text-[#b5b5b5]">
+            <label className="flex items-center gap-2.5 text-sm text-charcoal/70">
               <input
                 type="checkbox"
                 name="notifyCustomer"
                 defaultChecked
-                className="w-4 h-4 rounded border-[#444] bg-[#2a2a2a] text-gold focus:ring-gold/50 focus:ring-offset-0"
+                className="w-4 h-4 rounded border-cream-300 text-gold focus:ring-gold/30 focus:ring-offset-0"
               />
               Send notification email to customer
             </label>
@@ -116,14 +116,14 @@ export function FulfillOrderForm({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#2a2a2a] border border-[#444] rounded-lg hover:bg-[#333] transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-charcoal/20 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#1a4d2e] hover:bg-[#22633a] rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 text-sm font-medium text-white bg-leaf hover:bg-leaf-600 rounded-xl transition-colors disabled:opacity-50"
             >
               {isLoading ? "Fulfilling..." : "Fulfill items"}
             </button>
@@ -141,7 +141,6 @@ export function CancelOrderButton({
   orderId: string;
   orderNumber: number;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -169,7 +168,7 @@ export function CancelOrderButton({
     <button
       onClick={handleCancel}
       disabled={isLoading}
-      className="w-full px-4 py-2 text-sm font-medium text-[#f87171] bg-[#4d1a1a]/50 border border-[#4d1a1a] rounded-lg hover:bg-[#4d1a1a] transition-colors disabled:opacity-50"
+      className="w-full px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
     >
       {isLoading ? "Cancelling..." : "Cancel order"}
     </button>

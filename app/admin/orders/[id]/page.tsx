@@ -22,25 +22,25 @@ function StatusBadge({
     const s = status.toLowerCase();
 
     if (type === "financial") {
-      if (s === "paid") return "bg-[#1a4d2e] text-[#4ade80]";
-      if (s === "pending") return "bg-[#4d3800] text-[#fbbf24]";
+      if (s === "paid") return "bg-leaf/10 text-leaf-700";
+      if (s === "pending") return "bg-gold/10 text-saffron";
       if (s === "refunded" || s === "partially_refunded")
-        return "bg-[#4d1a1a] text-[#f87171]";
-      return "bg-[#333] text-[#999]";
+        return "bg-red-50 text-red-600";
+      return "bg-cream-100 text-charcoal/60";
     }
 
-    if (s === "fulfilled") return "bg-[#1a4d2e] text-[#4ade80]";
-    if (s === "unfulfilled") return "bg-[#4d3800] text-[#fbbf24]";
-    if (s === "partially_fulfilled") return "bg-[#1a3d4d] text-[#38bdf8]";
-    return "bg-[#333] text-[#999]";
+    if (s === "fulfilled") return "bg-leaf/10 text-leaf-700";
+    if (s === "unfulfilled") return "bg-gold/10 text-saffron";
+    if (s === "partially_fulfilled") return "bg-blue-50 text-blue-600";
+    return "bg-cream-100 text-charcoal/60";
   };
 
   const sizeClasses =
-    size === "large" ? "px-3 py-1 text-sm" : "px-2 py-0.5 text-xs";
+    size === "large" ? "px-3 py-1.5 text-sm" : "px-2.5 py-1 text-xs";
 
   return (
     <span
-      className={`inline-flex items-center rounded font-medium ${getColors()} ${sizeClasses}`}
+      className={`inline-flex items-center rounded-full font-medium ${getColors()} ${sizeClasses}`}
     >
       {status.replace(/_/g, " ")}
     </span>
@@ -57,12 +57,12 @@ function Card({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="bg-[#222] border border-[#333] rounded-xl overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#333]">
-        <h3 className="font-medium text-white">{title}</h3>
+    <div className="bg-white border border-cream-200 rounded-2xl overflow-hidden shadow-soft">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-cream-100">
+        <h3 className="font-serif font-semibold text-charcoal">{title}</h3>
         {actions}
       </div>
-      <div className="p-4">{children}</div>
+      <div className="p-5">{children}</div>
     </div>
   );
 }
@@ -97,14 +97,14 @@ export default async function OrderDetailPage({
   const currency = order.totalPriceSet.shopMoney.currencyCode;
 
   return (
-    <div className="p-6">
+    <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <Link
               href="/admin/orders"
-              className="text-[#888] hover:text-white transition-colors"
+              className="text-charcoal/50 hover:text-charcoal transition-colors"
             >
               <svg
                 className="w-5 h-5"
@@ -120,7 +120,7 @@ export default async function OrderDetailPage({
                 />
               </svg>
             </Link>
-            <h1 className="text-2xl font-semibold text-white">{order.name}</h1>
+            <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-charcoal">{order.name}</h1>
             <StatusBadge
               status={order.displayFinancialStatus}
               type="financial"
@@ -132,22 +132,22 @@ export default async function OrderDetailPage({
               size="large"
             />
             {order.test && (
-              <span className="px-2 py-1 rounded text-xs font-medium bg-[#4d3800] text-[#fbbf24]">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gold/10 text-saffron">
                 Test order
               </span>
             )}
           </div>
-          <p className="text-[#888] text-sm">{formatDate(order.createdAt)}</p>
+          <p className="text-charcoal/50 text-sm">{formatDate(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 text-sm font-medium text-white bg-[#2a2a2a] border border-[#444] rounded-lg hover:bg-[#333] transition-colors">
+          <button className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
             Refund
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-white bg-[#2a2a2a] border border-[#444] rounded-lg hover:bg-[#333] transition-colors">
+          <button className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
             Edit
           </button>
           <div className="relative group">
-            <button className="px-3 py-2 text-sm font-medium text-white bg-[#2a2a2a] border border-[#444] rounded-lg hover:bg-[#333] transition-colors">
+            <button className="px-3 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -168,10 +168,10 @@ export default async function OrderDetailPage({
 
       {/* Test order banner */}
       {order.test && (
-        <div className="mb-6 px-4 py-3 bg-[#4d3800]/50 border border-[#4d3800] rounded-xl">
+        <div className="mb-6 px-5 py-4 bg-gold/10 border border-gold/30 rounded-2xl">
           <div className="flex items-center gap-3">
             <svg
-              className="w-5 h-5 text-[#fbbf24]"
+              className="w-5 h-5 text-saffron"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -184,8 +184,8 @@ export default async function OrderDetailPage({
               />
             </svg>
             <div>
-              <p className="font-medium text-[#fbbf24]">Test order</p>
-              <p className="text-sm text-[#fbbf24]/70">
+              <p className="font-medium text-saffron">Test order</p>
+              <p className="text-sm text-saffron/70">
                 Your payment gateway is in test mode. This order won&apos;t be
                 charged.
               </p>
@@ -194,7 +194,7 @@ export default async function OrderDetailPage({
               href={`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/settings/payments`}
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-auto px-3 py-1.5 text-sm font-medium text-[#fbbf24] border border-[#fbbf24]/30 rounded-lg hover:bg-[#fbbf24]/10 transition-colors"
+              className="ml-auto px-4 py-2 text-sm font-medium text-saffron border border-saffron/30 rounded-xl hover:bg-saffron/10 transition-colors"
             >
               View payment settings
             </a>
@@ -216,7 +216,7 @@ export default async function OrderDetailPage({
             }
           >
             {order.shippingAddress && (
-              <div className="flex items-center gap-2 mb-4 text-sm text-[#888]">
+              <div className="flex items-center gap-2 mb-4 text-sm text-charcoal/50">
                 <svg
                   className="w-4 h-4"
                   fill="none"
@@ -246,9 +246,9 @@ export default async function OrderDetailPage({
               {lineItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 p-3 bg-[#1a1a1a] rounded-lg"
+                  className="flex items-center gap-4 p-4 bg-cream-50 rounded-xl"
                 >
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-[#333] flex-shrink-0">
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-cream-100 flex-shrink-0">
                     {item.image ? (
                       <Image
                         src={item.image.url}
@@ -257,7 +257,7 @@ export default async function OrderDetailPage({
                         className="object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#666]">
+                      <div className="w-full h-full flex items-center justify-center text-charcoal/30">
                         <svg
                           className="w-6 h-6"
                           fill="none"
@@ -275,25 +275,25 @@ export default async function OrderDetailPage({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate">
+                    <p className="font-medium text-charcoal truncate">
                       {item.title}
                     </p>
                     {item.variantTitle && (
-                      <p className="text-sm text-[#888]">{item.variantTitle}</p>
+                      <p className="text-sm text-charcoal/50">{item.variantTitle}</p>
                     )}
                     {item.sku && (
-                      <p className="text-xs text-[#666]">SKU: {item.sku}</p>
+                      <p className="text-xs text-charcoal/40">SKU: {item.sku}</p>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-[#888]">
+                    <p className="text-charcoal/50 text-sm">
                       {formatMoney(
                         item.discountedUnitPriceSet.shopMoney.amount,
                         currency
                       )}{" "}
                       × {item.quantity}
                     </p>
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-charcoal">
                       {formatMoney(
                         parseFloat(
                           item.discountedUnitPriceSet.shopMoney.amount
@@ -308,19 +308,19 @@ export default async function OrderDetailPage({
 
             {/* Fulfillment info */}
             {order.fulfillments.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-[#333]">
+              <div className="mt-4 pt-4 border-t border-cream-100">
                 {order.fulfillments.map((fulfillment) => (
                   <div key={fulfillment.id} className="text-sm">
-                    <p className="text-[#888]">
+                    <p className="text-charcoal/50">
                       Fulfilled on {formatDate(fulfillment.createdAt)}
                     </p>
                     {fulfillment.trackingInfo.map((tracking, i) => (
                       <div key={i} className="mt-2">
                         {tracking.company && (
-                          <p className="text-white">{tracking.company}</p>
+                          <p className="text-charcoal font-medium">{tracking.company}</p>
                         )}
                         {tracking.number && (
-                          <p className="text-[#6d9eff]">
+                          <p className="text-saffron">
                             {tracking.url ? (
                               <a
                                 href={tracking.url}
@@ -345,27 +345,27 @@ export default async function OrderDetailPage({
 
           {/* Payment card */}
           <Card title={isPaid ? "Paid" : "Payment pending"}>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-[#888]">
+            <div className="space-y-2.5 text-sm">
+              <div className="flex justify-between text-charcoal/60">
                 <span>Subtotal</span>
                 <span>
                   {lineItems.reduce((sum, item) => sum + item.quantity, 0)} items
                 </span>
-                <span className="text-white">
+                <span className="text-charcoal font-medium">
                   {formatMoney(subtotal, currency)}
                 </span>
               </div>
-              <div className="flex justify-between text-[#888]">
+              <div className="flex justify-between text-charcoal/60">
                 <span>Shipping</span>
-                <span className="text-white">
+                <span className="text-charcoal font-medium">
                   {formatMoney(shipping, currency)}
                 </span>
               </div>
-              <div className="flex justify-between text-[#888]">
+              <div className="flex justify-between text-charcoal/60">
                 <span>Tax (IGST 18%)</span>
-                <span className="text-white">{formatMoney(tax, currency)}</span>
+                <span className="text-charcoal font-medium">{formatMoney(tax, currency)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-[#333] font-medium text-white">
+              <div className="flex justify-between pt-3 border-t border-cream-100 font-semibold text-charcoal">
                 <span>Total</span>
                 <span>{formatMoney(total, currency)}</span>
               </div>
@@ -373,32 +373,32 @@ export default async function OrderDetailPage({
 
             {/* Transactions */}
             {order.transactions.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-[#333]">
-                <p className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">
+              <div className="mt-5 pt-5 border-t border-cream-100">
+                <p className="text-xs font-semibold text-charcoal/40 uppercase tracking-wider mb-3">
                   Transactions
                 </p>
                 {order.transactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between py-2 text-sm"
+                    className="flex items-center justify-between py-2.5 text-sm"
                   >
                     <div>
-                      <p className="text-white capitalize">
+                      <p className="text-charcoal font-medium capitalize">
                         {tx.kind.replace(/_/g, " ")}
                       </p>
-                      <p className="text-[#888] text-xs">
+                      <p className="text-charcoal/50 text-xs">
                         {formatDate(tx.createdAt)} · {tx.gateway}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-white">
+                      <p className="text-charcoal font-medium">
                         {formatMoney(tx.amountSet.shopMoney.amount, currency)}
                       </p>
                       <p
-                        className={`text-xs ${
+                        className={`text-xs font-medium ${
                           tx.status === "SUCCESS"
-                            ? "text-[#4ade80]"
-                            : "text-[#888]"
+                            ? "text-leaf-700"
+                            : "text-charcoal/50"
                         }`}
                       >
                         {tx.status}
@@ -416,9 +416,9 @@ export default async function OrderDetailPage({
           {/* Notes */}
           <Card title="Notes">
             {order.note ? (
-              <p className="text-[#b5b5b5] text-sm">{order.note}</p>
+              <p className="text-charcoal/70 text-sm">{order.note}</p>
             ) : (
-              <p className="text-[#666] text-sm">No notes from customer</p>
+              <p className="text-charcoal/40 text-sm">No notes from customer</p>
             )}
           </Card>
 
@@ -426,28 +426,28 @@ export default async function OrderDetailPage({
           <Card title="Customer">
             {order.customer ? (
               <div>
-                <p className="font-medium text-white">
+                <p className="font-medium text-charcoal">
                   {order.customer.firstName} {order.customer.lastName}
                 </p>
-                <p className="text-sm text-[#888]">
+                <p className="text-sm text-charcoal/50">
                   {order.customer.ordersCount === "1"
                     ? "No orders"
                     : `${parseInt(order.customer.ordersCount) - 1} previous orders`}
                 </p>
-                <div className="mt-3 pt-3 border-t border-[#333]">
-                  <p className="text-xs font-medium text-[#888] uppercase tracking-wider mb-2">
+                <div className="mt-4 pt-4 border-t border-cream-100">
+                  <p className="text-xs font-semibold text-charcoal/40 uppercase tracking-wider mb-2">
                     Contact information
                   </p>
                   <a
                     href={`mailto:${order.customer.email}`}
-                    className="text-sm text-[#6d9eff] hover:underline block"
+                    className="text-sm text-saffron hover:underline block"
                   >
                     {order.customer.email}
                   </a>
                   {order.customer.phone && (
                     <a
                       href={`tel:${order.customer.phone}`}
-                      className="text-sm text-[#6d9eff] hover:underline block mt-1"
+                      className="text-sm text-saffron hover:underline block mt-1"
                     >
                       {order.customer.phone}
                     </a>
@@ -455,7 +455,7 @@ export default async function OrderDetailPage({
                 </div>
               </div>
             ) : (
-              <p className="text-[#888] text-sm">No customer information</p>
+              <p className="text-charcoal/40 text-sm">No customer information</p>
             )}
           </Card>
 
@@ -470,14 +470,14 @@ export default async function OrderDetailPage({
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-[#6d9eff] hover:underline"
+                  className="text-xs text-saffron hover:underline font-medium"
                 >
                   View map
                 </a>
               }
             >
-              <address className="text-sm text-[#b5b5b5] not-italic">
-                <p className="font-medium text-white">
+              <address className="text-sm text-charcoal/70 not-italic">
+                <p className="font-medium text-charcoal">
                   {order.shippingAddress.firstName}{" "}
                   {order.shippingAddress.lastName}
                 </p>
@@ -494,7 +494,7 @@ export default async function OrderDetailPage({
                   <p className="mt-2">
                     <a
                       href={`tel:${order.shippingAddress.phone}`}
-                      className="text-[#6d9eff] hover:underline"
+                      className="text-saffron hover:underline"
                     >
                       {order.shippingAddress.phone}
                     </a>
@@ -507,8 +507,8 @@ export default async function OrderDetailPage({
           {/* Billing address */}
           {order.billingAddress && (
             <Card title="Billing address">
-              <address className="text-sm text-[#b5b5b5] not-italic">
-                <p className="font-medium text-white">
+              <address className="text-sm text-charcoal/70 not-italic">
+                <p className="font-medium text-charcoal">
                   {order.billingAddress.firstName}{" "}
                   {order.billingAddress.lastName}
                 </p>
@@ -532,14 +532,14 @@ export default async function OrderDetailPage({
                 {order.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-1 text-xs font-medium bg-[#333] text-[#b5b5b5] rounded"
+                    className="px-2.5 py-1 text-xs font-medium bg-cream-100 text-charcoal/70 rounded-full"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-[#666] text-sm">No tags</p>
+              <p className="text-charcoal/40 text-sm">No tags</p>
             )}
           </Card>
 

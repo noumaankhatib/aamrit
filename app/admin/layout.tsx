@@ -87,18 +87,18 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const user = session.user;
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-[240px] bg-[#1a1a1a] border-r border-[#333] flex flex-col">
+      <aside className="fixed left-0 top-0 bottom-0 w-[240px] bg-charcoal border-r border-charcoal-700 flex flex-col">
         {/* Logo */}
-        <div className="h-14 flex items-center px-4 border-b border-[#333]">
+        <div className="h-14 flex items-center px-4 border-b border-charcoal-700">
           <Link href="/admin" className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-400 to-saffron flex items-center justify-center">
+            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-300 to-saffron flex items-center justify-center shadow-glow">
               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
             </span>
-            <span className="font-semibold text-white">Aamrit</span>
+            <span className="font-serif font-semibold text-white text-lg">Aamrit</span>
           </Link>
         </div>
 
@@ -109,7 +109,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-[#b5b5b5] hover:text-white hover:bg-[#2a2a2a] transition-colors text-sm font-medium"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cream-100/70 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium"
                 >
                   {item.icon}
                   {item.label}
@@ -118,8 +118,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             ))}
           </ul>
 
-          <div className="mt-6 pt-6 border-t border-[#333] px-2">
-            <p className="px-3 mb-2 text-xs font-medium text-[#666] uppercase tracking-wider">
+          <div className="mt-6 pt-6 border-t border-charcoal-700 px-2">
+            <p className="px-3 mb-2 text-xs font-medium text-cream-100/40 uppercase tracking-wider">
               Settings
             </p>
             <ul className="space-y-1">
@@ -130,7 +130,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[#b5b5b5] hover:text-white hover:bg-[#2a2a2a] transition-colors text-sm font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cream-100/70 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium"
                     >
                       {item.icon}
                       {item.label}
@@ -140,7 +140,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-[#b5b5b5] hover:text-white hover:bg-[#2a2a2a] transition-colors text-sm font-medium"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-cream-100/70 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium"
                     >
                       {item.icon}
                       {item.label}
@@ -153,16 +153,16 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* User */}
-        <div className="p-4 border-t border-[#333]">
+        <div className="p-4 border-t border-charcoal-700">
           <div className="flex items-center gap-3">
             {user.image ? (
               <img
                 src={user.image}
                 alt={user.name || "Admin"}
-                className="w-8 h-8 rounded-full"
+                className="w-9 h-9 rounded-full ring-2 ring-gold/30"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm font-medium">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-300 to-saffron flex items-center justify-center text-white text-sm font-medium shadow-glow">
                 {user.name?.[0]?.toUpperCase() || "A"}
               </div>
             )}
@@ -170,7 +170,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
               <p className="text-sm font-medium text-white truncate">
                 {user.name || "Admin"}
               </p>
-              <p className="text-xs text-[#888] truncate">{user.email}</p>
+              <p className="text-xs text-cream-100/50 truncate">{user.email}</p>
             </div>
           </div>
           <form
@@ -182,7 +182,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
           >
             <button
               type="submit"
-              className="w-full px-3 py-2 text-sm text-[#888] hover:text-white hover:bg-[#2a2a2a] rounded-lg transition-colors text-left"
+              className="w-full px-3 py-2 text-sm text-cream-100/60 hover:text-white hover:bg-white/10 rounded-xl transition-colors text-left"
             >
               Sign out
             </button>
