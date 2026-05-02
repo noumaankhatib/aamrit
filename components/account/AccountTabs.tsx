@@ -138,13 +138,19 @@ export default function AccountTabs({ customer, orders, isAdmin = false }: Accou
             <h2 className="font-serif text-xl text-charcoal mb-6">Personal Information</h2>
 
             {profileState.success && (
-              <div className="mb-6 p-4 rounded-xl bg-leaf/10 border border-leaf/20 text-leaf-700 text-sm">
+              <div className="mb-6 p-4 rounded-xl bg-leaf/10 border border-leaf/20 text-leaf-700 text-sm flex items-center gap-2">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Profile updated successfully!
               </div>
             )}
 
             {profileState.error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-center gap-2">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 {profileState.error}
               </div>
             )}
@@ -181,48 +187,82 @@ export default function AccountTabs({ customer, orders, isAdmin = false }: Accou
                 <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-2">
                   Email address
                 </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  defaultValue={customer.email}
-                  className="w-full px-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
-                />
+                <div className="relative">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    defaultValue={customer.email}
+                    readOnly
+                    className="w-full px-4 py-3 rounded-xl border border-cream-200 bg-cream-50 text-charcoal/70 cursor-not-allowed"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg className="w-4 h-4 text-charcoal/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="mt-1.5 text-xs text-charcoal/50">Email cannot be changed. Contact support if needed.</p>
               </div>
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-charcoal mb-2">
-                  Phone number
+                  Mobile number
                 </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  defaultValue={customer.phone || ""}
-                  className="w-full px-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
-                />
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-charcoal/60 text-sm">
+                    <span>+91</span>
+                    <span className="text-charcoal/30">|</span>
+                  </div>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    defaultValue={customer.phone?.replace(/^\+91\s?/, "") || ""}
+                    placeholder="9876543210"
+                    pattern="[0-9]{10}"
+                    maxLength={10}
+                    className="w-full pl-16 pr-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
+                  />
+                </div>
+                <p className="mt-1.5 text-xs text-charcoal/50">Used for order updates and delivery notifications</p>
               </div>
 
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 p-4 bg-cream-50 rounded-xl">
                 <input
                   type="checkbox"
                   id="acceptsMarketing"
                   name="acceptsMarketing"
                   defaultChecked={customer.acceptsMarketing}
-                  className="mt-1 w-4 h-4 rounded border-cream-300 text-gold focus:ring-gold/30"
+                  className="mt-0.5 w-4 h-4 rounded border-cream-300 text-gold focus:ring-gold/30"
                 />
-                <label htmlFor="acceptsMarketing" className="text-sm text-charcoal/70">
-                  Receive marketing emails about products and offers
-                </label>
+                <div>
+                  <label htmlFor="acceptsMarketing" className="text-sm font-medium text-charcoal cursor-pointer">
+                    Marketing communications
+                  </label>
+                  <p className="text-xs text-charcoal/60 mt-0.5">
+                    Receive emails about new products, exclusive offers, and promotions
+                  </p>
+                </div>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-4 flex items-center gap-4">
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="btn-gold px-6 py-3 rounded-xl text-white font-medium disabled:opacity-50"
+                  className="btn-gold px-6 py-3 rounded-xl text-white font-medium disabled:opacity-50 inline-flex items-center gap-2"
                 >
-                  {isUpdating ? "Saving..." : "Save changes"}
+                  {isUpdating ? (
+                    <>
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Saving...
+                    </>
+                  ) : (
+                    "Save changes"
+                  )}
                 </button>
               </div>
             </form>
@@ -348,6 +388,30 @@ function OrderCard({ order }: { order: ShopifyOrder }) {
     FULFILLED: "bg-leaf/10 text-leaf-700",
     UNFULFILLED: "bg-gold/10 text-saffron",
     PARTIALLY_FULFILLED: "bg-gold/10 text-saffron",
+    IN_PROGRESS: "bg-blue-50 text-blue-600",
+  };
+
+  const getStatusIcon = () => {
+    switch (order.fulfillmentStatus) {
+      case "FULFILLED":
+        return (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        );
+      case "UNFULFILLED":
+        return (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+        );
+    }
   };
 
   return (
@@ -357,20 +421,37 @@ function OrderCard({ order }: { order: ShopifyOrder }) {
     >
       {/* Header */}
       <div className="px-6 py-4 border-b border-cream-100 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm text-charcoal/60">Order</p>
-          <p className="font-semibold text-charcoal">#{order.orderNumber}</p>
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+            order.fulfillmentStatus === "FULFILLED" 
+              ? "bg-leaf/10 text-leaf-700" 
+              : order.fulfillmentStatus === "UNFULFILLED"
+              ? "bg-gold/10 text-saffron"
+              : "bg-blue-50 text-blue-600"
+          }`}>
+            {getStatusIcon()}
+          </div>
+          <div>
+            <p className="font-semibold text-charcoal">Order #{order.orderNumber}</p>
+            <p className="text-xs text-charcoal/60">
+              {new Date(order.processedAt).toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+          </div>
         </div>
         <div className="text-right">
-          <p className="text-sm text-charcoal/60">
-            {new Date(order.processedAt).toLocaleDateString("en-IN", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </p>
           <p className="font-semibold text-charcoal">
             {formatINR(Math.round(parseFloat(order.totalPrice.amount) * 100))}
+          </p>
+          <p className={`text-xs font-medium ${
+            order.fulfillmentStatus === "FULFILLED" ? "text-leaf-700" : "text-saffron"
+          }`}>
+            {order.fulfillmentStatus === "FULFILLED" ? "Delivered" : 
+             order.fulfillmentStatus === "UNFULFILLED" ? "Processing" : 
+             order.fulfillmentStatus.toLowerCase().replace("_", " ")}
           </p>
         </div>
       </div>
@@ -380,15 +461,23 @@ function OrderCard({ order }: { order: ShopifyOrder }) {
         <div className="flex flex-wrap gap-3 mb-4">
           {order.lineItems.slice(0, 3).map((item, i) => (
             <div key={i} className="flex items-center gap-3">
-              {item.variant?.image && (
-                <img
-                  src={item.variant.image.url}
-                  alt={item.variant.image.altText || item.title}
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-              )}
+              <div className="w-12 h-12 rounded-lg bg-cream-100 overflow-hidden flex-shrink-0">
+                {item.variant?.image ? (
+                  <img
+                    src={item.variant.image.url}
+                    alt={item.variant.image.altText || item.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-charcoal/30">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               <div>
-                <p className="text-sm font-medium text-charcoal">{item.title}</p>
+                <p className="text-sm font-medium text-charcoal line-clamp-1">{item.title}</p>
                 <p className="text-xs text-charcoal/60">Qty: {item.quantity}</p>
               </div>
             </div>
@@ -404,7 +493,12 @@ function OrderCard({ order }: { order: ShopifyOrder }) {
 
         {/* Status badges + view link */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.financialStatus] || statusColors.PENDING}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${statusColors[order.financialStatus] || statusColors.PENDING}`}>
+            {order.financialStatus === "PAID" && (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
             {order.financialStatus.toLowerCase().replace("_", " ")}
           </span>
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${fulfillmentColors[order.fulfillmentStatus] || fulfillmentColors.UNFULFILLED}`}>

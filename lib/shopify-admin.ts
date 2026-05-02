@@ -581,6 +581,123 @@ export async function cancelOrder(orderId: string, reason?: string): Promise<boo
   }
 }
 
+export async function updateFulfillmentTracking(
+  fulfillmentId: string,
+  trackingCompany?: string,
+  trackingNumber?: string,
+  trackingUrl?: string,
+  notifyCustomer: boolean = true
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation FulfillmentTrackingInfoUpdateV2($fulfillmentId: ID!, $trackingInfoInput: FulfillmentTrackingInput!, $notifyCustomer: Boolean) {
+      fulfillmentTrackingInfoUpdateV2(
+        fulfillmentId: $fulfillmentId
+        trackingInfoInput: $trackingInfoInput
+        notifyCustomer: $notifyCustomer
+      ) {
+        fulfillment {
+          id
+          status
+          trackingInfo {
+            company
+            number
+            url
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const trackingInfoInput: Record<string, unknown> = {};
+    if (trackingCompany) trackingInfoInput.company = trackingCompany;
+    if (trackingNumber) trackingInfoInput.number = trackingNumber;
+    if (trackingUrl) trackingInfoInput.url = trackingUrl;
+
+    const data = await adminFetch<{
+      fulfillmentTrackingInfoUpdateV2: {
+        fulfillment: { id: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      fulfillmentId,
+      trackingInfoInput,
+      notifyCustomer,
+    });
+
+    if (data.fulfillmentTrackingInfoUpdateV2?.userErrors?.length) {
+      const error = data.fulfillmentTrackingInfoUpdateV2.userErrors[0];
+      console.error("Update tracking errors:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating fulfillment tracking:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to update tracking" 
+    };
+  }
+}
+
+export interface OrderStatusUpdate {
+  orderId: string;
+  status: "OPEN" | "ARCHIVED";
+  note?: string;
+}
+
+export async function addOrderNote(
+  orderId: string,
+  note: string
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation OrderUpdate($input: OrderInput!) {
+      orderUpdate(input: $input) {
+        order {
+          id
+          note
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      orderUpdate: {
+        order: { id: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      input: {
+        id: orderId,
+        note,
+      },
+    });
+
+    if (data.orderUpdate?.userErrors?.length) {
+      const error = data.orderUpdate.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding order note:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to add note" 
+    };
+  }
+}
+
 export async function getOrderStats(): Promise<{
   totalOrders: number;
   unfulfilled: number;

@@ -531,24 +531,70 @@ const CUSTOMER_UPDATE_MUTATION = `
   }
 `;
 
+const CUSTOMER_PHONE_UPDATE_MUTATION = `
+  mutation CustomerPhoneUpdate($phoneNumber: String!) {
+    customerPhoneNumberUpdate(phoneNumber: $phoneNumber) {
+      customer {
+        id
+        phoneNumber {
+          phoneNumber
+        }
+      }
+      userErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export interface CustomerProfileUpdateInput {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
 export async function updateCustomerAccountProfile(
   accessToken: string,
-  input: { firstName?: string; lastName?: string }
+  input: CustomerProfileUpdateInput
 ): Promise<{ ok: boolean; error: string | null }> {
-  const json = await customerAccountFetch<{
-    customerUpdate: {
-      userErrors: { message: string }[];
-      customer: { id: string } | null;
-    };
-  }>(accessToken, CUSTOMER_UPDATE_MUTATION, { input });
+  const { phoneNumber, ...profileInput } = input;
+  
+  if (profileInput.firstName !== undefined || profileInput.lastName !== undefined) {
+    const json = await customerAccountFetch<{
+      customerUpdate: {
+        userErrors: { message: string }[];
+        customer: { id: string } | null;
+      };
+    }>(accessToken, CUSTOMER_UPDATE_MUTATION, { input: profileInput });
 
-  if (json.errors?.length) {
-    return { ok: false, error: json.errors[0].message };
+    if (json.errors?.length) {
+      return { ok: false, error: json.errors[0].message };
+    }
+
+    const errs = json.data?.customerUpdate?.userErrors;
+    if (errs?.length) {
+      return { ok: false, error: errs[0].message };
+    }
   }
 
-  const errs = json.data?.customerUpdate?.userErrors;
-  if (errs?.length) {
-    return { ok: false, error: errs[0].message };
+  if (phoneNumber !== undefined && phoneNumber.trim() !== "") {
+    const phoneJson = await customerAccountFetch<{
+      customerPhoneNumberUpdate: {
+        userErrors: { message: string }[];
+        customer: { id: string } | null;
+      };
+    }>(accessToken, CUSTOMER_PHONE_UPDATE_MUTATION, { phoneNumber });
+
+    if (phoneJson.errors?.length) {
+      return { ok: false, error: phoneJson.errors[0].message };
+    }
+
+    const phoneErrs = phoneJson.data?.customerPhoneNumberUpdate?.userErrors;
+    if (phoneErrs?.length) {
+      return { ok: false, error: phoneErrs[0].message };
+    }
   }
 
   return { ok: true, error: null };

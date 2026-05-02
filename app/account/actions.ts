@@ -240,10 +240,12 @@ export async function updateProfileAction(
     const result = await updateCustomerAccountProfile(caToken, {
       firstName: firstName || undefined,
       lastName: lastName || undefined,
+      phoneNumber: phone || undefined,
     });
     if (!result.ok) {
       return { error: result.error ?? "Failed to update profile", success: false };
     }
+    revalidatePath("/account");
     return { error: null, success: true };
   }
 
@@ -264,6 +266,7 @@ export async function updateProfileAction(
     return { error: error ?? "Failed to update profile", success: false };
   }
 
+  revalidatePath("/account");
   return { error: null, success: true };
 }
 
@@ -287,9 +290,41 @@ export async function getMyOrders(first = 10): Promise<ShopifyOrder[]> {
 
 export async function getOrderById(orderId: string): Promise<ShopifyOrderDetail | null> {
   const caToken = await getCustomerAccountAccessToken();
-  if (!caToken) return null;
-  const { order } = await fetchCustomerAccountOrderById(caToken, orderId);
-  return order;
+  if (caToken) {
+    const { order } = await fetchCustomerAccountOrderById(caToken, orderId);
+    return order;
+  }
+
+  const legacyToken = await getCustomerToken();
+  if (!legacyToken) return null;
+
+  const { orders } = await getCustomerOrders(legacyToken, 50);
+  const foundOrder = orders.find(o => o.id === orderId);
+  
+  if (!foundOrder) return null;
+
+  const orderDetail: ShopifyOrderDetail = {
+    id: foundOrder.id,
+    orderNumber: foundOrder.orderNumber,
+    processedAt: foundOrder.processedAt,
+    financialStatus: foundOrder.financialStatus,
+    fulfillmentStatus: foundOrder.fulfillmentStatus,
+    statusPageUrl: null,
+    totalPrice: foundOrder.totalPrice,
+    subtotalPrice: null,
+    totalShipping: null,
+    totalTax: null,
+    shippingAddress: null,
+    fulfillments: [],
+    lineItems: foundOrder.lineItems.map(item => ({
+      title: item.title,
+      quantity: item.quantity,
+      price: item.variant?.price ?? null,
+      image: item.variant?.image ?? null,
+    })),
+  };
+
+  return orderDetail;
 }
 
 // ============================================================================
