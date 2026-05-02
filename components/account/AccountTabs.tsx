@@ -210,7 +210,11 @@ export default function AccountTabs({ customer, orders, isAdmin = false, isCusto
                 <label htmlFor="phone" className="block text-sm font-medium text-charcoal mb-2">
                   Mobile number
                 </label>
-                {isCustomerAccountUser ? (
+                {/* Hidden field to pass default address ID for Customer Account users */}
+                {isCustomerAccountUser && customer.defaultAddress?.id && (
+                  <input type="hidden" name="defaultAddressId" value={customer.defaultAddress.id} />
+                )}
+                {isCustomerAccountUser && !customer.defaultAddress ? (
                   <>
                     <div className="relative">
                       <input
@@ -228,13 +232,13 @@ export default function AccountTabs({ customer, orders, isAdmin = false, isCusto
                       </div>
                     </div>
                     <p className="mt-1.5 text-xs text-charcoal/50">
-                      Phone is linked to your delivery address.{" "}
+                      Add a default address first to set your phone number.{" "}
                       <button 
                         type="button" 
                         onClick={() => selectTab("addresses")} 
                         className="text-saffron hover:underline"
                       >
-                        Update in Addresses
+                        Go to Addresses
                       </button>
                     </p>
                   </>
@@ -249,14 +253,18 @@ export default function AccountTabs({ customer, orders, isAdmin = false, isCusto
                         type="tel"
                         id="phone"
                         name="phone"
-                        defaultValue={customer.phone?.replace(/^\+91\s?/, "") || ""}
+                        defaultValue={(customer.defaultAddress?.phone || customer.phone || "")?.replace(/^\+91\s?/, "")}
                         placeholder="9876543210"
                         pattern="[0-9]{10}"
                         maxLength={10}
                         className="w-full pl-16 pr-4 py-3 rounded-xl border border-cream-200 bg-white focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition-colors"
                       />
                     </div>
-                    <p className="mt-1.5 text-xs text-charcoal/50">Used for order updates and delivery notifications</p>
+                    <p className="mt-1.5 text-xs text-charcoal/50">
+                      {isCustomerAccountUser 
+                        ? "Phone will be saved to your default delivery address" 
+                        : "Used for order updates and delivery notifications"}
+                    </p>
                   </>
                 )}
               </div>

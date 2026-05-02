@@ -240,6 +240,7 @@ export async function updateProfileAction(
   const email = formData.get("email") as string | null;
   const phone = formData.get("phone") as string | null;
   const acceptsMarketing = formData.get("acceptsMarketing") === "on";
+  const defaultAddressId = formData.get("defaultAddressId") as string | null;
 
   const caToken = await getCustomerAccountAccessToken();
   if (caToken) {
@@ -250,6 +251,20 @@ export async function updateProfileAction(
     if (!result.ok) {
       return { error: result.error ?? "Failed to update profile", success: false };
     }
+
+    // For Customer Account API users, update phone on default address if provided
+    if (phone && defaultAddressId) {
+      const phoneNumber = phone.startsWith("+91") ? phone : `+91${phone.replace(/\D/g, "")}`;
+      const addressResult = await updateCustomerAccountAddress(caToken, defaultAddressId, {
+        phoneNumber,
+      }, true); // Keep as default
+      if (!addressResult.ok) {
+        // Phone update failed but profile update succeeded
+        revalidatePath("/account");
+        return { error: "Profile updated but phone update failed. Please update phone in Addresses.", success: true };
+      }
+    }
+
     revalidatePath("/account");
     return { error: null, success: true };
   }

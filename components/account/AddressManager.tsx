@@ -9,7 +9,7 @@ import {
   setDefaultAddressAction,
 } from "@/app/account/actions";
 
-type Mode = { kind: "closed" } | { kind: "add" } | { kind: "edit"; address: ShopifyAddress };
+type Mode = { kind: "closed" } | { kind: "add" } | { kind: "edit"; address: ShopifyAddress; isDefault: boolean };
 
 export default function AddressManager({ customer }: { customer: ShopifyCustomer }) {
   const [mode, setMode] = useState<Mode>({ kind: "closed" });
@@ -47,14 +47,17 @@ export default function AddressManager({ customer }: { customer: ShopifyCustomer
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {customer.addresses.map((address) => (
-            <AddressCard
-              key={address.id}
-              address={address}
-              isDefault={customer.defaultAddress?.id === address.id}
-              onEdit={() => setMode({ kind: "edit", address })}
-            />
-          ))}
+          {customer.addresses.map((address) => {
+            const isDefault = customer.defaultAddress?.id === address.id;
+            return (
+              <AddressCard
+                key={address.id}
+                address={address}
+                isDefault={isDefault}
+                onEdit={() => setMode({ kind: "edit", address, isDefault })}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -161,6 +164,7 @@ function AddressCard({
 function AddressDialog({ mode, onClose }: { mode: Mode; onClose: () => void }) {
   const isEdit = mode.kind === "edit";
   const initial = isEdit ? mode.address : null;
+  const isCurrentlyDefault = isEdit && mode.isDefault;
 
   const action = isEdit
     ? updateAddressAction.bind(null, initial!.id)
@@ -238,14 +242,27 @@ function AddressDialog({ mode, onClose }: { mode: Mode; onClose: () => void }) {
 
           <Field label="Phone" name="phoneNumber" type="tel" defaultValue={initial?.phone ?? ""} />
 
-          <label className="flex items-start gap-3 pt-1">
-            <input
-              type="checkbox"
-              name="setDefault"
-              className="mt-1 w-4 h-4 rounded border-cream-300 text-gold focus:ring-gold/30"
-            />
-            <span className="text-sm text-charcoal/70">Set as default delivery address</span>
-          </label>
+          {isCurrentlyDefault ? (
+            <div className="flex items-start gap-3 pt-1 p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-amber-800">This is your default address</p>
+                <p className="text-xs text-amber-700 mt-0.5">To change the default, set another address as default first.</p>
+              </div>
+              <input type="hidden" name="setDefault" value="on" />
+            </div>
+          ) : (
+            <label className="flex items-start gap-3 pt-1">
+              <input
+                type="checkbox"
+                name="setDefault"
+                className="mt-1 w-4 h-4 rounded border-cream-300 text-gold focus:ring-gold/30"
+              />
+              <span className="text-sm text-charcoal/70">Set as default delivery address</span>
+            </label>
+          )}
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
