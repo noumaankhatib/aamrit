@@ -353,8 +353,8 @@ const ORDER_FRAGMENT = `
   }
 `;
 
-function extractOrderNumber(gid: string): number {
-  const match = gid.match(/Order\/(\d+)/);
+function extractOrderNumber(name: string): number {
+  const match = name.match(/#(\d+)/);
   return match ? parseInt(match[1], 10) : 0;
 }
 
@@ -422,7 +422,7 @@ export async function getOrders(options: {
 
       return {
         id: order.id,
-        orderNumber: extractOrderNumber(order.id),
+        orderNumber: extractOrderNumber(order.name),
         name: order.name,
         createdAt: order.createdAt,
         financialStatus: order.displayFinancialStatus,
@@ -460,7 +460,7 @@ export async function getOrder(orderId: string): Promise<ShopifyOrder | null> {
 
     return {
       ...data.order,
-      orderNumber: extractOrderNumber(data.order.id),
+      orderNumber: extractOrderNumber(data.order.name),
     };
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -490,7 +490,7 @@ export async function getOrderByNumber(orderNumber: number): Promise<ShopifyOrde
 
     return {
       ...order,
-      orderNumber: extractOrderNumber(order.id),
+      orderNumber: extractOrderNumber(order.name),
     };
   } catch (error) {
     console.error("Error fetching order by number:", error);
