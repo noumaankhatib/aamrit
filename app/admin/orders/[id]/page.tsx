@@ -78,9 +78,10 @@ function Card({
 export default async function OrderDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const orderNumber = parseInt(params.id, 10);
+  const { id } = await params;
+  const orderNumber = parseInt(id, 10);
 
   if (isNaN(orderNumber)) {
     notFound();

@@ -153,9 +153,9 @@ function Pagination({
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: { status?: string; q?: string; after?: string; before?: string };
+  searchParams: Promise<{ status?: string; q?: string; after?: string; before?: string }>;
 }) {
-  const { status, q, after, before } = searchParams;
+  const { status, q, after, before } = await searchParams;
   
   const { orders, pageInfo, totalCount } = await getOrders({
     first: before ? undefined : ORDERS_PER_PAGE,
