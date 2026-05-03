@@ -1,7 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { fulfillOrder, cancelOrder, updateFulfillmentTracking, addOrderNote } from "@/lib/shopify-admin";
+import { 
+  fulfillOrder, 
+  cancelOrder, 
+  updateFulfillmentTracking, 
+  addOrderNote,
+  updateOrderTags,
+  closeOrder,
+  openOrder,
+  markOrderAsPaid,
+  cancelFulfillment
+} from "@/lib/shopify-admin";
 
 export async function fulfillOrderAction(
   orderId: string,
@@ -105,6 +115,112 @@ export async function addOrderNoteAction(
     return { success: false, error: result.error || "Failed to add note" };
   } catch (error) {
     console.error("Add note error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+}
+
+export async function updateOrderTagsAction(
+  orderId: string,
+  tags: string[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await updateOrderTags(orderId, tags);
+
+    if (result.success) {
+      revalidatePath("/admin/orders");
+      return { success: true };
+    }
+
+    return { success: false, error: result.error || "Failed to update tags" };
+  } catch (error) {
+    console.error("Update tags error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+}
+
+export async function closeOrderAction(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await closeOrder(orderId);
+
+    if (result.success) {
+      revalidatePath("/admin/orders");
+      return { success: true };
+    }
+
+    return { success: false, error: result.error || "Failed to close order" };
+  } catch (error) {
+    console.error("Close order error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+}
+
+export async function openOrderAction(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await openOrder(orderId);
+
+    if (result.success) {
+      revalidatePath("/admin/orders");
+      return { success: true };
+    }
+
+    return { success: false, error: result.error || "Failed to open order" };
+  } catch (error) {
+    console.error("Open order error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+}
+
+export async function markOrderAsPaidAction(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await markOrderAsPaid(orderId);
+
+    if (result.success) {
+      revalidatePath("/admin/orders");
+      return { success: true };
+    }
+
+    return { success: false, error: result.error || "Failed to mark order as paid" };
+  } catch (error) {
+    console.error("Mark as paid error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
+  }
+}
+
+export async function cancelFulfillmentAction(
+  fulfillmentId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await cancelFulfillment(fulfillmentId);
+
+    if (result.success) {
+      revalidatePath("/admin/orders");
+      return { success: true };
+    }
+
+    return { success: false, error: result.error || "Failed to cancel fulfillment" };
+  } catch (error) {
+    console.error("Cancel fulfillment error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An error occurred",

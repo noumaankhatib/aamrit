@@ -7,7 +7,15 @@ import {
   formatDate,
   type ShopifyOrder,
 } from "@/lib/shopify-admin";
-import { FulfillOrderForm, CancelOrderButton, UpdateTrackingForm } from "./actions-client";
+import { 
+  FulfillOrderForm, 
+  CancelOrderButton, 
+  UpdateTrackingForm,
+  EditNoteForm,
+  TagsEditor,
+  OrderActionsMenu,
+  CancelFulfillmentButton
+} from "./actions-client";
 
 function StatusBadge({
   status,
@@ -89,6 +97,7 @@ export default async function OrderDetailPage({
     order.displayFulfillmentStatus.toLowerCase() === "fulfilled";
   const isPaid = order.displayFinancialStatus.toLowerCase() === "paid";
   const isCancelled = !!order.cancelledAt;
+  const isClosed = order.displayFulfillmentStatus.toLowerCase() === "fulfilled" && isPaid;
 
   const subtotal = parseFloat(order.subtotalPriceSet.shopMoney.amount);
   const shipping = parseFloat(order.totalShippingPriceSet.shopMoney.amount);
@@ -140,29 +149,22 @@ export default async function OrderDetailPage({
           <p className="text-charcoal/50 text-sm">{formatDate(order.createdAt)}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
+          <a
+            href={`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/orders/${orderNumber}/refund`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all"
+          >
             Refund
-          </button>
-          <button className="px-4 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
-            Edit
-          </button>
-          <div className="relative group">
-            <button className="px-3 py-2.5 text-sm font-medium text-charcoal bg-white border border-cream-200 rounded-xl hover:border-gold/40 hover:shadow-e1 transition-all">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </button>
-          </div>
+          </a>
+          <OrderActionsMenu
+            orderId={order.id}
+            orderNumber={orderNumber}
+            isFulfilled={isFulfilled}
+            isPaid={isPaid}
+            isClosed={isClosed}
+            isCancelled={isCancelled}
+          />
         </div>
       </div>
 
@@ -311,6 +313,7 @@ export default async function OrderDetailPage({
               <div className="mt-4 pt-4 border-t border-cream-100 space-y-4">
                 {order.fulfillments.map((fulfillment) => {
                   const tracking = fulfillment.trackingInfo[0];
+                  const canCancel = fulfillment.status === "SUCCESS" || fulfillment.status === "PENDING";
                   return (
                     <div key={fulfillment.id} className="p-4 bg-leaf/5 border border-leaf/20 rounded-xl">
                       <div className="flex items-start justify-between gap-3">
@@ -373,12 +376,17 @@ export default async function OrderDetailPage({
                             <p className="text-sm text-charcoal/50 italic">No tracking information added</p>
                           )}
                         </div>
-                        <UpdateTrackingForm
-                          fulfillmentId={fulfillment.id}
-                          currentCompany={tracking?.company}
-                          currentNumber={tracking?.number}
-                          currentUrl={tracking?.url}
-                        />
+                        <div className="flex items-center gap-2">
+                          <UpdateTrackingForm
+                            fulfillmentId={fulfillment.id}
+                            currentCompany={tracking?.company}
+                            currentNumber={tracking?.number}
+                            currentUrl={tracking?.url}
+                          />
+                          {canCancel && (
+                            <CancelFulfillmentButton fulfillmentId={fulfillment.id} />
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -459,11 +467,7 @@ export default async function OrderDetailPage({
         <div className="space-y-6">
           {/* Notes */}
           <Card title="Notes">
-            {order.note ? (
-              <p className="text-charcoal/70 text-sm">{order.note}</p>
-            ) : (
-              <p className="text-charcoal/40 text-sm">No notes from customer</p>
-            )}
+            <EditNoteForm orderId={order.id} currentNote={order.note} />
           </Card>
 
           {/* Customer */}
@@ -571,20 +575,7 @@ export default async function OrderDetailPage({
 
           {/* Tags */}
           <Card title="Tags">
-            {order.tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {order.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 text-xs font-medium bg-cream-100 text-charcoal/70 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-charcoal/40 text-sm">No tags</p>
-            )}
+            <TagsEditor orderId={order.id} currentTags={order.tags} />
           </Card>
 
           {/* Cancel order */}

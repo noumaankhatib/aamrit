@@ -856,3 +856,221 @@ export function formatDateShort(dateString: string): string {
     dateStyle: "medium",
   }).format(new Date(dateString));
 }
+
+export async function updateOrderTags(
+  orderId: string,
+  tags: string[]
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation OrderUpdate($input: OrderInput!) {
+      orderUpdate(input: $input) {
+        order {
+          id
+          tags
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      orderUpdate: {
+        order: { id: string; tags: string[] } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      input: {
+        id: orderId,
+        tags,
+      },
+    });
+
+    if (data.orderUpdate?.userErrors?.length) {
+      const error = data.orderUpdate.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating order tags:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to update tags" 
+    };
+  }
+}
+
+export async function closeOrder(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation OrderClose($input: OrderCloseInput!) {
+      orderClose(input: $input) {
+        order {
+          id
+          closed
+          closedAt
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      orderClose: {
+        order: { id: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      input: { id: orderId },
+    });
+
+    if (data.orderClose?.userErrors?.length) {
+      const error = data.orderClose.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error closing order:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to close order" 
+    };
+  }
+}
+
+export async function openOrder(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation OrderOpen($input: OrderOpenInput!) {
+      orderOpen(input: $input) {
+        order {
+          id
+          closed
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      orderOpen: {
+        order: { id: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      input: { id: orderId },
+    });
+
+    if (data.orderOpen?.userErrors?.length) {
+      const error = data.orderOpen.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error opening order:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to open order" 
+    };
+  }
+}
+
+export async function markOrderAsPaid(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation OrderMarkAsPaid($input: OrderMarkAsPaidInput!) {
+      orderMarkAsPaid(input: $input) {
+        order {
+          id
+          displayFinancialStatus
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      orderMarkAsPaid: {
+        order: { id: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, {
+      input: { id: orderId },
+    });
+
+    if (data.orderMarkAsPaid?.userErrors?.length) {
+      const error = data.orderMarkAsPaid.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error marking order as paid:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to mark order as paid" 
+    };
+  }
+}
+
+export async function cancelFulfillment(
+  fulfillmentId: string
+): Promise<{ success: boolean; error?: string }> {
+  const query = `
+    mutation FulfillmentCancel($id: ID!) {
+      fulfillmentCancel(id: $id) {
+        fulfillment {
+          id
+          status
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await adminFetch<{
+      fulfillmentCancel: {
+        fulfillment: { id: string; status: string } | null;
+        userErrors: { field: string[]; message: string }[];
+      };
+    }>(query, { id: fulfillmentId });
+
+    if (data.fulfillmentCancel?.userErrors?.length) {
+      const error = data.fulfillmentCancel.userErrors[0];
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error cancelling fulfillment:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to cancel fulfillment" 
+    };
+  }
+}
