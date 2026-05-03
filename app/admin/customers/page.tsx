@@ -9,7 +9,7 @@ export default function CustomersPage() {
         <div>
           <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-charcoal">Customers</h1>
           <p className="text-charcoal/60 mt-1">
-            Manage customers through Shopify Admin
+            View and manage your customers
           </p>
         </div>
         {domain && (
@@ -32,7 +32,7 @@ export default function CustomersPage() {
                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
               />
             </svg>
-            Open in Shopify
+            Manage Customers
           </a>
         )}
       </div>
@@ -45,7 +45,7 @@ export default function CustomersPage() {
         </div>
         <h2 className="font-serif text-xl text-charcoal mb-2">Customer Management</h2>
         <p className="text-charcoal/60 mb-6 max-w-md mx-auto">
-          Customer data is managed through Shopify Admin. Click the button below to view and manage your customers.
+          View customer details, order history, and contact information. Click the button below to manage your customers.
         </p>
         {domain && (
           <a
@@ -57,7 +57,7 @@ export default function CustomersPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            Go to Shopify Customers
+            View All Customers
           </a>
         )}
       </div>

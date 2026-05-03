@@ -283,8 +283,8 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div>
-            <p className="font-medium text-charcoal">Shopify Admin</p>
-            <p className="text-sm text-charcoal/50">Full admin access</p>
+            <p className="font-medium text-charcoal">Store Settings</p>
+            <p className="text-sm text-charcoal/50">Advanced configuration</p>
           </div>
         </a>
 

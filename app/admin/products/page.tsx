@@ -27,7 +27,7 @@ export default async function AdminProductsPage() {
         <div>
           <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-charcoal">Products</h1>
           <p className="text-charcoal/60 mt-1">
-            Catalogue preview from the Storefront API · edit inventory in Shopify Admin
+            Catalogue preview · manage inventory in store settings
           </p>
         </div>
         {domain && (
@@ -50,7 +50,7 @@ export default async function AdminProductsPage() {
                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
               />
             </svg>
-            Open in Shopify
+            Manage Products
           </a>
         )}
       </div>
@@ -70,7 +70,7 @@ export default async function AdminProductsPage() {
           </div>
           <p className="text-charcoal/70 font-medium mb-2">No active products returned from the API.</p>
           <p className="text-sm text-charcoal/50">
-            Publish products in Shopify or enable Storefront API access for your catalogue.
+            Publish products or enable API access for your catalogue.
           </p>
         </div>
       )}
@@ -153,7 +153,7 @@ export default async function AdminProductsPage() {
                             rel="noopener noreferrer"
                             className="text-charcoal/50 hover:text-charcoal font-medium"
                           >
-                            Shopify
+                            Edit
                           </a>
                         ) : null}
                       </td>

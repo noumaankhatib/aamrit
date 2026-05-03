@@ -58,7 +58,7 @@ const NAV_ITEMS = [
 const SETTINGS_ITEMS = [
   {
     href: `https://${process.env.SHOPIFY_STORE_DOMAIN}/admin`,
-    label: "Shopify Admin",
+    label: "Store Settings",
     external: true,
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

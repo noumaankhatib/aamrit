@@ -9,7 +9,7 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-2xl lg:text-3xl font-serif font-semibold text-charcoal">Analytics</h1>
           <p className="text-charcoal/60 mt-1">
-            View detailed analytics in Shopify Admin
+            View detailed store analytics and reports
           </p>
         </div>
         {domain && (
@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
               />
             </svg>
-            Open in Shopify
+            View Analytics
           </a>
         )}
       </div>
@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
         </div>
         <h2 className="font-serif text-xl text-charcoal mb-2">Store Analytics</h2>
         <p className="text-charcoal/60 mb-6 max-w-md mx-auto">
-          Detailed analytics, reports, and insights are available through Shopify Admin. Click the button below to access your store analytics.
+          Detailed analytics, reports, and insights are available in the store dashboard. Click the button below to access your analytics.
         </p>
         {domain && (
           <a
@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            Go to Shopify Analytics
+            Open Analytics Dashboard
           </a>
         )}
       </div>
