@@ -358,14 +358,37 @@ function extractOrderNumber(name: string): number {
   return match ? parseInt(match[1], 10) : 0;
 }
 
+export interface OrdersPageInfo {
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  startCursor: string | null;
+  endCursor: string | null;
+}
+
+export interface PaginatedOrders {
+  orders: OrderListItem[];
+  pageInfo: OrdersPageInfo;
+  totalCount: number;
+}
+
 export async function getOrders(options: {
   first?: number;
+  last?: number;
+  after?: string;
+  before?: string;
   status?: "open" | "closed" | "cancelled" | "any";
   financialStatus?: string;
   fulfillmentStatus?: string;
   query?: string;
-} = {}): Promise<OrderListItem[]> {
-  const { first = 50, status = "any", query: searchQuery } = options;
+} = {}): Promise<PaginatedOrders> {
+  const { 
+    first, 
+    last, 
+    after, 
+    before, 
+    status = "any", 
+    query: searchQuery 
+  } = options;
 
   let queryFilter = "";
   if (status !== "any") {
@@ -376,9 +399,10 @@ export async function getOrders(options: {
   }
 
   const query = `
-    query GetOrders($first: Int!, $query: String) {
-      orders(first: $first, sortKey: CREATED_AT, reverse: true, query: $query) {
+    query GetOrders($first: Int, $last: Int, $after: String, $before: String, $query: String) {
+      orders(first: $first, last: $last, after: $after, before: $before, sortKey: CREATED_AT, reverse: true, query: $query) {
         edges {
+          cursor
           node {
             id
             name
@@ -403,6 +427,8 @@ export async function getOrders(options: {
         }
         pageInfo {
           hasNextPage
+          hasPreviousPage
+          startCursor
           endCursor
         }
       }
@@ -410,9 +436,21 @@ export async function getOrders(options: {
   `;
 
   try {
-    const data = await adminFetch<any>(query, { first, query: queryFilter || null });
+    const variables: Record<string, unknown> = {
+      query: queryFilter || null,
+    };
+    
+    if (before) {
+      variables.last = last ?? 25;
+      variables.before = before;
+    } else {
+      variables.first = first ?? 25;
+      variables.after = after || null;
+    }
 
-    return data.orders.edges.map((edge: any) => {
+    const data = await adminFetch<any>(query, variables);
+
+    const orders = data.orders.edges.map((edge: any) => {
       const order = edge.node;
       const customer = order.customer;
       const itemCount = order.lineItems.edges.reduce(
@@ -437,9 +475,29 @@ export async function getOrders(options: {
         isTest: order.test,
       };
     });
+
+    return {
+      orders,
+      pageInfo: {
+        hasNextPage: data.orders.pageInfo.hasNextPage,
+        hasPreviousPage: data.orders.pageInfo.hasPreviousPage,
+        startCursor: data.orders.pageInfo.startCursor,
+        endCursor: data.orders.pageInfo.endCursor,
+      },
+      totalCount: orders.length,
+    };
   } catch (error) {
     console.error("Error fetching orders:", error);
-    return [];
+    return {
+      orders: [],
+      pageInfo: {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        startCursor: null,
+        endCursor: null,
+      },
+      totalCount: 0,
+    };
   }
 }
 

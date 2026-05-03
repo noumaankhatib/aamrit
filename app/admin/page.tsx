@@ -90,10 +90,12 @@ function RecentOrderRow({
 }
 
 export default async function AdminDashboard() {
-  const [orders, stats] = await Promise.all([
+  const [ordersData, stats] = await Promise.all([
     getOrders({ first: 5 }),
     getOrderStats(),
   ]);
+  
+  const orders = ordersData.orders;
 
   return (
     <div className="p-6 lg:p-8">

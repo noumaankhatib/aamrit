@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getOrders, formatMoney, formatDate, type OrderListItem } from "@/lib/shopify-admin";
+import { getOrders, formatMoney, formatDate, type OrderListItem, type OrdersPageInfo } from "@/lib/shopify-admin";
 
 function StatusBadge({ status, type }: { status: string; type: "financial" | "fulfillment" }) {
   const getColors = () => {
@@ -74,15 +74,94 @@ function OrderRow({ order }: { order: OrderListItem }) {
   );
 }
 
+const ORDERS_PER_PAGE = 25;
+
+function buildPaginationUrl(
+  baseParams: { status?: string; q?: string },
+  cursor: string | null,
+  direction: "after" | "before"
+): string {
+  const params = new URLSearchParams();
+  if (baseParams.status) params.set("status", baseParams.status);
+  if (baseParams.q) params.set("q", baseParams.q);
+  if (cursor) params.set(direction, cursor);
+  const queryString = params.toString();
+  return `/admin/orders${queryString ? `?${queryString}` : ""}`;
+}
+
+function Pagination({
+  pageInfo,
+  totalCount,
+  currentCount,
+  baseParams,
+}: {
+  pageInfo: OrdersPageInfo;
+  totalCount: number;
+  currentCount: number;
+  baseParams: { status?: string; q?: string };
+}) {
+  const prevUrl = buildPaginationUrl(baseParams, pageInfo.startCursor, "before");
+  const nextUrl = buildPaginationUrl(baseParams, pageInfo.endCursor, "after");
+
+  return (
+    <div className="mt-4 flex items-center justify-between text-sm text-charcoal/50">
+      <p>
+        Showing {currentCount} of {totalCount > 250 ? "250+" : totalCount} orders
+      </p>
+      <div className="flex items-center gap-2">
+        {pageInfo.hasPreviousPage ? (
+          <Link
+            href={prevUrl}
+            className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal hover:border-gold/40 hover:shadow-e1 transition-all inline-flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </Link>
+        ) : (
+          <span className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal/40 cursor-not-allowed inline-flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </span>
+        )}
+        {pageInfo.hasNextPage ? (
+          <Link
+            href={nextUrl}
+            className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal hover:border-gold/40 hover:shadow-e1 transition-all inline-flex items-center gap-1.5"
+          >
+            Next
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        ) : (
+          <span className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal/40 cursor-not-allowed inline-flex items-center gap-1.5">
+            Next
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: { status?: string; q?: string };
+  searchParams: { status?: string; q?: string; after?: string; before?: string };
 }) {
-  const { status, q } = searchParams;
+  const { status, q, after, before } = searchParams;
   
-  const orders = await getOrders({
-    first: 50,
+  const { orders, pageInfo, totalCount } = await getOrders({
+    first: before ? undefined : ORDERS_PER_PAGE,
+    last: before ? ORDERS_PER_PAGE : undefined,
+    after: after || undefined,
+    before: before || undefined,
     status: status as "open" | "closed" | "cancelled" | "any" | undefined,
     query: q,
   });
@@ -90,6 +169,8 @@ export default async function OrdersPage({
   const unfulfilledCount = orders.filter(
     (o) => o.fulfillmentStatus.toLowerCase() === "unfulfilled"
   ).length;
+
+  const baseParams = { status, q };
 
   return (
     <div className="p-6 lg:p-8">
@@ -269,25 +350,14 @@ export default async function OrdersPage({
         )}
       </div>
 
-      {/* Pagination info */}
+      {/* Pagination */}
       {orders.length > 0 && (
-        <div className="mt-4 flex items-center justify-between text-sm text-charcoal/50">
-          <p>Showing {orders.length} orders</p>
-          <div className="flex items-center gap-2">
-            <button
-              disabled
-              className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal/40 cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              disabled
-              className="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-charcoal/40 cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        <Pagination
+          pageInfo={pageInfo}
+          totalCount={totalCount}
+          currentCount={orders.length}
+          baseParams={baseParams}
+        />
       )}
     </div>
   );
