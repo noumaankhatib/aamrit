@@ -82,7 +82,7 @@ export interface ShopifyOrder {
     lastName: string;
     email: string;
     phone: string | null;
-    ordersCount: string;
+    numberOfOrders: string;
   } | null;
   shippingAddress: {
     firstName: string;
@@ -281,7 +281,7 @@ const ORDER_FRAGMENT = `
       lastName
       email
       phone
-      ordersCount
+      numberOfOrders
     }
     shippingAddress {
       firstName

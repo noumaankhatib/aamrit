@@ -479,9 +479,9 @@ export default async function OrderDetailPage({
                   {order.customer.firstName} {order.customer.lastName}
                 </p>
                 <p className="text-sm text-charcoal/50">
-                  {order.customer.ordersCount === "1"
-                    ? "No orders"
-                    : `${parseInt(order.customer.ordersCount) - 1} previous orders`}
+                  {order.customer.numberOfOrders === "1"
+                    ? "First order"
+                    : `${parseInt(order.customer.numberOfOrders) - 1} previous orders`}
                 </p>
                 <div className="mt-4 pt-4 border-t border-cream-100">
                   <p className="text-xs font-semibold text-charcoal/40 uppercase tracking-wider mb-2">
